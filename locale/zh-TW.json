@@ -1,0 +1,110 @@
+{
+    "app": {
+        "title": "OpenClaw 配置管理",
+        "subtitle": "智能體與通道配置中心"
+    },
+    "nav": {
+        "feishu": "飛書配置",
+        "agents": "智能體管理",
+        "chat": "聊天對話",
+        "commands": "命令管理"
+    },
+    "common": {
+        "add": "添加",
+        "edit": "編輯",
+        "delete": "刪除",
+        "save": "保存",
+        "cancel": "取消",
+        "confirm": "確認",
+        "search": "搜索",
+        "export": "導出",
+        "import": "導入",
+        "enabled": "已啟用",
+        "disabled": "已禁用",
+        "status": "狀態",
+        "action": "操作",
+        "name": "名稱",
+        "description": "描述",
+        "createdAt": "創建時間",
+        "updatedAt": "更新時間",
+        "confirmDelete": "確定要刪除嗎？",
+        "operationSuccess": "操作成功",
+        "operationFailed": "操作失敗",
+        "loading": "載入中...",
+        "noData": "暫無數據"
+    },
+    "feishu": {
+        "title": "飛書通道管理",
+        "addChannel": "添加飛書通道",
+        "editChannel": "編輯飛書通道",
+        "channelName": "通道名稱",
+        "channelNamePlaceholder": "請輸入通道名稱",
+        "appId": "App ID",
+        "appIdPlaceholder": "請輸入飛書應用 App ID",
+        "appSecret": "App Secret",
+        "appSecretPlaceholder": "請輸入飛書應用 App Secret",
+        "verificationToken": "Verification Token",
+        "verificationTokenPlaceholder": "請輸入驗證令牌",
+        "enabled": "啟用狀態",
+        "deleteConfirm": "確定要刪除此飛書通道嗎？",
+        "toggleSuccess": "狀態切換成功",
+        "saveSuccess": "飛書通道保存成功",
+        "deleteSuccess": "飛書通道刪除成功"
+    },
+    "agent": {
+        "title": "智能體管理",
+        "addAgent": "添加智能體",
+        "editAgent": "編輯智能體",
+        "agentName": "智能體名稱",
+        "agentNamePlaceholder": "請輸入智能體名稱",
+        "apiKey": "AI模型 API Key",
+        "apiKeyPlaceholder": "請輸入 API Key",
+        "modelId": "模型 ID",
+        "modelIdPlaceholder": "預設 gpt-4o-mini",
+        "identity": "身份與權限體系",
+        "identityPlaceholder": "定義智能體的身份角色和權限範圍...",
+        "skills": "技能能力說明書",
+        "skillsPlaceholder": "描述智能體具備的核心技能和能力...",
+        "personality": "核心人格與價值觀",
+        "personalityPlaceholder": "定義智能體的性格特點和價值觀取向...",
+        "tools": "工具集接入文件",
+        "toolsPlaceholder": "配置智能體可調用的外部工具...",
+        "userProfile": "用戶畫像與交互規範",
+        "userProfilePlaceholder": "定義目標用戶特徵和交互方式...",
+        "deleteConfirm": "確定要刪除此智能體嗎？",
+        "saveSuccess": "智能體保存成功",
+        "deleteSuccess": "智能體刪除成功",
+        "exportSuccess": "導出成功",
+        "importSuccess": "導入成功"
+    },
+    "chat": {
+        "title": "聊天對話",
+        "selectAgent": "選擇智能體",
+        "inputPlaceholder": "輸入訊息...",
+        "send": "發送",
+        "clearChat": "清空聊天",
+        "noAgent": "請先選擇智能體",
+        "agentReply": "智能體回覆"
+    },
+    "command": {
+        "title": "遠端命令管理",
+        "execute": "執行",
+        "executing": "執行中...",
+        "result": "執行結果",
+        "clearResult": "清空結果",
+        "copyResult": "複製結果",
+        "confirmExecute": "確定要執行此命令嗎？",
+        "executeSuccess": "命令執行成功",
+        "executeFailed": "命令執行失敗"
+    },
+    "theme": {
+        "light": "淺色模式",
+        "dark": "深色模式",
+        "auto": "跟隨系統"
+    },
+    "lang": {
+        "zhCN": "简体中文",
+        "zhTW": "繁體中文",
+        "en": "English"
+    }
+}

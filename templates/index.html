@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenClaw 配置管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-robot me-2"></i>
+                <span data-i18n="app.title">OpenClaw 配置管理</span>
+            </a>
+            <div class="d-flex align-items-center gap-3">
+                <select id="langSelect" class="form-select form-select-sm" style="width: auto;">
+                    <option value="zh-CN">简体中文</option>
+                    <option value="zh-TW">繁體中文</option>
+                    <option value="en">English</option>
+                </select>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-light btn-sm" id="themeLight" title="Light">
+                        <i class="bi bi-sun"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-light btn-sm" id="themeDark" title="Dark">
+                        <i class="bi bi-moon"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-light btn-sm active" id="themeAuto" title="Auto">
+                        <i class="bi bi-circle-half"></i>
+                    </button>
+                    <a href="/logout" class="btn btn-outline-light btn-sm" title="登出">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-3">
+        <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="feishu-tab" data-bs-toggle="tab" data-bs-target="#feishu" type="button" role="tab">
+                    <i class="bi bi-chat-dots me-1"></i><span data-i18n="nav.feishu">飞书配置</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="agents-tab" data-bs-toggle="tab" data-bs-target="#agents" type="button" role="tab">
+                    <i class="bi bi-people me-1"></i><span data-i18n="nav.agents">智能体管理</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="templates-tab" data-bs-toggle="tab" data-bs-target="#templates" type="button" role="tab">
+                    <i class="bi bi-file-text me-1"></i>智能体模板
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="chat-tab" data-bs-toggle="tab" data-bs-target="#chat" type="button" role="tab">
+                    <i class="bi bi-chat me-1"></i><span data-i18n="nav.chat">聊天对话</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="commands-tab" data-bs-toggle="tab" data-bs-target="#commands" type="button" role="tab">
+                    <i class="bi bi-terminal me-1"></i><span data-i18n="nav.commands">命令管理</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="versions-tab" data-bs-toggle="tab" data-bs-target="#versions" type="button" role="tab">
+                    <i class="bi bi-gear me-1"></i>系统管理
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content mt-3" id="mainTabsContent">
+            <!-- 飞书配置 -->
+            <div class="tab-pane fade show active" id="feishu" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0"><span data-i18n="feishu.title">飞书通道管理</span></h5>
+                    <button class="btn btn-primary" onclick="showFeishuModal()">
+                        <i class="bi bi-plus-lg me-1"></i><span data-i18n="feishu.addChannel">添加飞书通道</span>
+                    </button>
+                </div>
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="feishu.channelName">通道名称</th>
+                                    <th>App ID</th>
+                                    <th data-i18n="common.status">状态</th>
+                                    <th data-i18n="common.action">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="feishuList">
+                                <tr><td colspan="4" class="text-center text-muted py-4" data-i18n="common.loading">加载中...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 智能体管理 -->
+            <div class="tab-pane fade" id="agents" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0"><span data-i18n="agent.title">智能体管理</span></h5>
+                    <div>
+                        <button class="btn btn-outline-secondary me-2" onclick="exportAgents()">
+                            <i class="bi bi-download me-1"></i><span data-i18n="common.export">导出</span>
+                        </button>
+                        <button class="btn btn-outline-secondary me-2" onclick="triggerImport()">
+                            <i class="bi bi-upload me-1"></i><span data-i18n="common.import">导入</span>
+                        </button>
+                        <button class="btn btn-primary" onclick="showAgentModal()">
+                            <i class="bi bi-plus-lg me-1"></i><span data-i18n="agent.addAgent">添加智能体</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="row" id="agentList">
+                    <div class="col-12 text-center text-muted py-5" data-i18n="common.loading">加载中...</div>
+                </div>
+            </div>
+
+            <!-- 智能体模板 -->
+            <div class="tab-pane fade" id="templates" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">智能体模板</h5>
+                    <button class="btn btn-primary" onclick="showTemplateModal()">
+                        <i class="bi bi-plus-lg me-1"></i>添加模板
+                    </button>
+                </div>
+                <div class="row" id="templateList">
+                    <div class="col-12 text-center text-muted py-3">暂无模板</div>
+                </div>
+            </div>
+
+            <!-- 聊天对话 -->
+            <div class="tab-pane fade" id="chat" role="tabpanel">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <span data-i18n="chat.selectAgent">选择智能体</span>
+                            </div>
+                            <div class="list-group list-group-flush" id="chatAgentList">
+                                <div class="list-group-item text-center text-muted" data-i18n="common.loading">加载中...</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span id="currentAgentName">-</span>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="clearChat()">
+                                    <i class="bi bi-trash me-1"></i><span data-i18n="chat.clearChat">清空聊天</span>
+                                </button>
+                            </div>
+                            <div class="card-body chat-messages" id="chatMessages">
+                                <div class="text-center text-muted py-5">
+                                    <i class="bi bi-chat-dots display-4"></i>
+                                    <p class="mt-2" data-i18n="chat.noAgent">请先选择智能体</p>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="chatInput" data-i18n-placeholder="chat.inputPlaceholder" placeholder="输入消息...">
+                                    <button class="btn btn-primary" onclick="sendMessage()">
+                                        <i class="bi bi-send me-1"></i><span data-i18n="chat.send">发送</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 命令管理 -->
+            <div class="tab-pane fade" id="commands" role="tabpanel">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <span data-i18n="command.title">远程命令管理</span>
+                            </div>
+                            <div class="list-group list-group-flush" id="commandList">
+                                <div class="list-group-item text-center text-muted" data-i18n="common.loading">加载中...</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span data-i18n="command.result">执行结果</span>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyResult()">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="clearResult()">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <pre id="commandResult" class="result-area mb-0"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 系统管理 -->
+            <div class="tab-pane fade" id="versions" role="tabpanel">
+                <!-- 配置版本管理 -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0"><span data-i18n="version.title">配置版本管理</span></h5>
+                    <button class="btn btn-outline-primary btn-sm" onclick="loadVersions()">
+                        <i class="bi bi-arrow-clockwise me-1"></i><span data-i18n="common.refresh">刷新</span>
+                    </button>
+                </div>
+                
+                <!-- 当前版本 -->
+                <div class="card mb-3">
+                    <div class="card-header bg-success text-white">
+                        <i class="bi bi-check-circle me-1"></i>当前版本
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="version.time">备份时间</th>
+                                    <th data-i18n="version.filename">文件名</th>
+                                    <th data-i18n="common.action">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="currentVersion">
+                                <tr><td colspan="3" class="text-center text-muted py-3">加载中...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 历史版本 -->
+                <div class="card">
+                    <div class="card-header bg-secondary text-white" style="cursor:pointer" data-bs-toggle="collapse" data-bs-target="#historyVersions">
+                        <i class="bi bi-clock-history me-1"></i>历史备份 (<span id="historyCount">0</span>) <i class="bi bi-chevron-down float-end"></i>
+                    </div>
+                    <div class="collapse" id="historyVersions">
+                        <div class="card-body">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="version.time">备份时间</th>
+                                        <th data-i18n="version.filename">文件名</th>
+                                        <th data-i18n="common.action">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="versionList">
+                                    <tr><td colspan="3" class="text-center text-muted py-3">暂无历史版本</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 系统备份 -->
+                <h5 class="mb-3">系统备份</h5>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="card-title"><i class="bi bi-folder-zip me-2"></i>小龙虾备份</h6>
+                                <p class="card-text small text-muted">打包备份 openclaw-main、.openclaw 及系统服务文件（保留最近3个）</p>
+                                <button class="btn btn-primary btn-sm" onclick="backupOpenclaw()">
+                                    <i class="bi bi-download me-1"></i>打包备份
+                                </button>
+                                <div class="mt-2" id="openclawBackupList"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="card-title"><i class="bi bi-folder-zip me-2"></i>番薯备份</h6>
+                                <p class="card-text small text-muted">打包备份 rlzclaw 配置目录（保留最近3个）</p>
+                                <button class="btn btn-primary btn-sm" onclick="backupRlzclaw()">
+                                    <i class="bi bi-download me-1"></i>打包备份
+                                </button>
+                                <div class="mt-2" id="rlzclawBackupList"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 系统卸载 -->
+                <h5 class="mb-3 mt-4 text-danger">系统卸载</h5>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100 border-danger">
+                            <div class="card-body">
+                                <h6 class="card-title text-danger"><i class="bi bi-trash me-2"></i>卸载小龙虾</h6>
+                                <p class="card-text small text-danger"><i class="bi bi-exclamation-triangle me-1"></i><strong>警告：此操作将停止并删除所有 OpenClaw 相关数据，包括智能体配置、工作区文件等，且无法恢复！</strong></p>
+                                <button class="btn btn-danger" onclick="showUninstallModal()">
+                                    <i class="bi bi-trash me-1"></i>卸载小龙虾
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改密码模态框 -->
+    <div class="modal fade" id="changePasswordModal" data-bs-backdrop="static" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-key me-2"></i>首次登录 - 修改密码</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-1"></i>您是首次登录，请修改默认密码
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">当前密码</label>
+                        <input type="password" class="form-control" id="currentPassword" placeholder="请输入当前密码">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">新密码</label>
+                        <input type="password" class="form-control" id="newPassword" placeholder="请输入新密码（至少6位）">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">确认新密码</label>
+                        <input type="password" class="form-control" id="confirmPassword" placeholder="请再次输入新密码">
+                    </div>
+                    <div id="passwordError" class="alert alert-danger d-none"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="changePassword()">确认修改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 飞书通道模态框 -->
+    <div class="modal fade" id="feishuModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" data-i18n="feishu.addChannel">添加飞书通道</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="feishuForm">
+                        <input type="hidden" id="feishuId">
+                        <div class="mb-3">
+                            <label class="form-label" data-i18n="feishu.channelName">通道名称</label>
+                            <input type="text" class="form-control" id="feishuName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">App ID</label>
+                            <input type="text" class="form-control" id="feishuAppId" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">App Secret</label>
+                            <input type="password" class="form-control" id="feishuAppSecret" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Verification Token</label>
+                            <input type="text" class="form-control" id="feishuToken">
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="feishuEnabled" checked>
+                            <label class="form-check-label" data-i18n="feishu.enabled">启用状态</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="common.cancel">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveFeishu()" data-i18n="common.save">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 智能体模态框 -->
+    <div class="modal fade" id="agentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" data-i18n="agent.addAgent">添加智能体</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="agentForm">
+                        <input type="hidden" id="agentId">
+                        <div class="mb-3">
+                            <label class="form-label" data-i18n="agent.agentName">智能体名称</label>
+                            <input type="text" class="form-control" id="agentName" required>
+                        </div>
+                        <div class="mb-3" id="templateSelectContainer">
+                            <label class="form-label">选择模板（可选）</label>
+                            <select class="form-select" id="agentTemplateSelect" onchange="onTemplateSelect()">
+                                <option value="">-- 不使用模板 --</option>
+                            </select>
+                        </div>
+                        <div id="modelSelectContainer"></div>
+                        <div class="mb-3">
+                            <label class="form-label" data-i18n="agent.identity">身份与权限体系</label>
+                            <textarea class="form-control" id="agentIdentity" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" data-i18n="agent.skills">技能能力说明书</label>
+                            <textarea class="form-control" id="agentSkills" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" data-i18n="agent.personality">核心人格与价值观</label>
+                            <textarea class="form-control" id="agentPersonality" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" data-i18n="agent.tools">工具集接入文档</label>
+                            <textarea class="form-control" id="agentTools" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" data-i18n="agent.userProfile">用户画像与交互规范</label>
+                            <textarea class="form-control" id="agentUserProfile" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="common.cancel">取消</button>
+                    <button type="button" class="btn btn-primary" id="saveAgentBtn" onclick="saveAgent()" data-i18n="common.save">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认模态框 -->
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" data-i18n="common.confirm">确认</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmMessage"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="common.cancel">取消</button>
+                    <button type="button" class="btn btn-danger" id="confirmBtn" data-i18n="common.confirm">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 版本详情模态框 -->
+    <div class="modal fade" id="versionModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" data-i18n="version.detail">版本详情</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-2"><strong data-i18n="version.time">备份时间:</strong> <span id="versionTime"></span></p>
+                    <pre id="versionContent" class="version-content" style="max-height: 500px; overflow-y: auto; padding: 15px; border-radius: 5px; white-space: pre-wrap; word-break: break-all;"></pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="common.cancel">取消</button>
+                    <button type="button" class="btn btn-warning" id="restoreVersionBtn" data-i18n="version.restore">回滚到此版本</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 倒计时提示模态框 -->
+    <div class="modal fade" id="countdownModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-check-circle text-success me-2"></i>智能体创建成功</h5>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div class="mb-3">
+                        <i class="bi bi-robot display-1 text-primary"></i>
+                    </div>
+                    <p class="fs-5 mb-2">智能体正在初始化，请稍候...</p>
+                    <div class="display-1 fw-bold text-primary" id="countdownTimer">30</div>
+                    <p class="text-muted mt-2">秒后自动关闭</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 卸载验证模态框 -->
+    <div class="modal fade" id="uninstallModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger"><i class="bi bi-exclamation-triangle me-2"></i>卸载 OpenClaw 验证</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">为防止误操作，请先回答以下微积分问题：</p>
+                    <div class="alert alert-info">
+                        <strong id="calcQuestion">加载中...</strong>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">请输入答案：</label>
+                        <input type="number" class="form-control" id="calcAnswer" placeholder="输入你的答案">
+                    </div>
+                    <div id="calcError" class="alert alert-danger d-none">答案错误，请重试！</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-danger" onclick="verifyAndUninstall()">确认卸载</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 智能体模板模态框 -->
+    <div class="modal fade" id="templateModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">智能体模板</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="templateForm">
+                        <input type="hidden" id="templateId">
+                        <div class="mb-3">
+                            <label class="form-label">模板名称</label>
+                            <input type="text" class="form-control" id="templateName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">身份与权限体系</label>
+                            <textarea class="form-control" id="templateIdentity" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">技能能力说明书</label>
+                            <textarea class="form-control" id="templateSkills" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">核心人格与价值观</label>
+                            <textarea class="form-control" id="templatePersonality" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">工具集接入文档</label>
+                            <textarea class="form-control" id="templateTools" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">用户画像与交互规范</label>
+                            <textarea class="form-control" id="templateUserProfile" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveTemplate()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="importFile" accept=".json" style="display: none;">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=20260315"></script>
+</body>
+</html>

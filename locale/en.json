@@ -1,0 +1,110 @@
+{
+    "app": {
+        "title": "OpenClaw Config Manager",
+        "subtitle": "Agent & Channel Configuration Center"
+    },
+    "nav": {
+        "feishu": "Feishu Config",
+        "agents": "Agent Management",
+        "chat": "Chat Dialog",
+        "commands": "Command Management"
+    },
+    "common": {
+        "add": "Add",
+        "edit": "Edit",
+        "delete": "Delete",
+        "save": "Save",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "search": "Search",
+        "export": "Export",
+        "import": "Import",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "status": "Status",
+        "action": "Action",
+        "name": "Name",
+        "description": "Description",
+        "createdAt": "Created At",
+        "updatedAt": "Updated At",
+        "confirmDelete": "Are you sure you want to delete?",
+        "operationSuccess": "Operation successful",
+        "operationFailed": "Operation failed",
+        "loading": "Loading...",
+        "noData": "No data available"
+    },
+    "feishu": {
+        "title": "Feishu Channel Management",
+        "addChannel": "Add Feishu Channel",
+        "editChannel": "Edit Feishu Channel",
+        "channelName": "Channel Name",
+        "channelNamePlaceholder": "Enter channel name",
+        "appId": "App ID",
+        "appIdPlaceholder": "Enter Feishu App ID",
+        "appSecret": "App Secret",
+        "appSecretPlaceholder": "Enter Feishu App Secret",
+        "verificationToken": "Verification Token",
+        "verificationTokenPlaceholder": "Enter verification token",
+        "enabled": "Status",
+        "deleteConfirm": "Are you sure you want to delete this channel?",
+        "toggleSuccess": "Status toggled successfully",
+        "saveSuccess": "Channel saved successfully",
+        "deleteSuccess": "Channel deleted successfully"
+    },
+    "agent": {
+        "title": "Agent Management",
+        "addAgent": "Add Agent",
+        "editAgent": "Edit Agent",
+        "agentName": "Agent Name",
+        "agentNamePlaceholder": "Enter agent name",
+        "apiKey": "AI Model API Key",
+        "apiKeyPlaceholder": "Enter API Key",
+        "modelId": "Model ID",
+        "modelIdPlaceholder": "Default: gpt-4o-mini",
+        "identity": "Identity & Permissions",
+        "identityPlaceholder": "Define agent's identity role and permission scope...",
+        "skills": "Skills Description",
+        "skillsPlaceholder": "Describe the core skills and capabilities...",
+        "personality": "Personality & Values",
+        "personalityPlaceholder": "Define the personality traits and values...",
+        "tools": "Tool Integration",
+        "toolsPlaceholder": "Configure external tools the agent can call...",
+        "userProfile": "User Profile & Interaction",
+        "userProfilePlaceholder": "Define target user characteristics...",
+        "deleteConfirm": "Are you sure you want to delete this agent?",
+        "saveSuccess": "Agent saved successfully",
+        "deleteSuccess": "Agent deleted successfully",
+        "exportSuccess": "Export successful",
+        "importSuccess": "Import successful"
+    },
+    "chat": {
+        "title": "Chat Dialog",
+        "selectAgent": "Select Agent",
+        "inputPlaceholder": "Type a message...",
+        "send": "Send",
+        "clearChat": "Clear Chat",
+        "noAgent": "Please select an agent first",
+        "agentReply": "Agent Reply"
+    },
+    "command": {
+        "title": "Remote Command Management",
+        "execute": "Execute",
+        "executing": "Executing...",
+        "result": "Execution Result",
+        "clearResult": "Clear Result",
+        "copyResult": "Copy Result",
+        "confirmExecute": "Are you sure you want to execute this command?",
+        "executeSuccess": "Command executed successfully",
+        "executeFailed": "Command execution failed"
+    },
+    "theme": {
+        "light": "Light Mode",
+        "dark": "Dark Mode",
+        "auto": "Follow System"
+    },
+    "lang": {
+        "zhCN": "简体中文",
+        "zhTW": "繁體中文",
+        "en": "English"
+    }
+}

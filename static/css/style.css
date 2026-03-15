@@ -1,0 +1,316 @@
+/* ==================== CSS 变量定义 / CSS Variable Definitions ==================== */
+
+/* 浅色模式变量 / Light mode variables */
+:root {
+    --bg-primary: #ffffff;           /* 主背景色 / Primary background color */
+    --bg-secondary: #f8f9fa;         /* 次要背景色 / Secondary background color */
+    --bg-tertiary: #e9ecef;          /* 第三级背景色 / Tertiary background color */
+    --text-primary: #212529;         /* 主文本色 / Primary text color */
+    --text-secondary: #6c757d;       /* 次要文本色 / Secondary text color */
+    --border-color: #dee2e6;         /* 边框颜色 / Border color */
+    --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);  /* 小阴影 / Small shadow */
+    --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);         /* 中阴影 / Medium shadow */
+}
+
+/* 深色模式变量 / Dark mode variables */
+[data-bs-theme="dark"] {
+    --bg-primary: #1a1a2e;           /* 主背景色 / Primary background color */
+    --bg-secondary: #16213e;         /* 次要背景色 / Secondary background color */
+    --bg-tertiary: #0f3460;          /* 第三级背景色 / Tertiary background color */
+    --text-primary: #e9ecef;         /* 主文本色 / Primary text color */
+    --text-secondary: #adb5bd;       /* 次要文本色 / Secondary text color */
+    --border-color: #495057;         /* 边框颜色 / Border color */
+    --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.25);  /* 小阴影 / Small shadow */
+    --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);         /* 中阴影 / Medium shadow */
+}
+
+/* ==================== 基础样式 / Base Styles ==================== */
+
+/* 页面主体 / Page body */
+body {
+    background-color: var(--bg-secondary);  /* 背景色 / Background color */
+    color: var(--text-primary);             /* 文本色 / Text color */
+    transition: background-color 0.3s ease, color 0.3s ease;  /* 过渡动画 / Transition animation */
+    min-height: 100vh;                      /* 最小高度 / Minimum height */
+}
+
+/* ==================== 组件样式 / Component Styles ==================== */
+
+/* 导航栏 / Navigation bar */
+.navbar {
+    box-shadow: var(--shadow-sm);  /* 阴影 / Shadow */
+}
+
+/* 卡片 / Card */
+.card {
+    background-color: var(--bg-primary);  /* 背景色 / Background color */
+    border-color: var(--border-color);    /* 边框色 / Border color */
+    box-shadow: var(--shadow-sm);         /* 阴影 / Shadow */
+    transition: all 0.3s ease;            /* 过渡动画 / Transition animation */
+}
+
+/* 卡片头部 / Card header */
+.card-header {
+    background-color: var(--bg-secondary);  /* 背景色 / Background color */
+    border-color: var(--border-color);      /* 边框色 / Border color */
+}
+
+/* 表格 / Table */
+.table {
+    color: var(--text-primary);  /* 文本色 / Text color */
+    margin-bottom: 0;            /* 下边距 / Bottom margin */
+}
+
+/* 表格单元格 / Table cells */
+.table > :not(caption) > * > * {
+    background-color: var(--bg-primary);  /* 背景色 / Background color */
+    border-color: var(--border-color);    /* 边框色 / Border color */
+}
+
+/* 悬停表格行 / Hover table row */
+.table-hover > tbody > tr:hover > * {
+    background-color: var(--bg-secondary);  /* 背景色 / Background color */
+}
+
+/* 表单控件 / Form controls */
+.form-control, .form-select {
+    background-color: var(--bg-primary);  /* 背景色 / Background color */
+    border-color: var(--border-color);    /* 边框色 / Border color */
+    color: var(--text-primary);           /* 文本色 / Text color */
+}
+
+/* 表单控件聚焦 / Form control focus */
+.form-control:focus, .form-select:focus {
+    background-color: var(--bg-primary);                /* 背景色 / Background color */
+    border-color: #0d6efd;                               /* 聚焦边框色 / Focus border color */
+    color: var(--text-primary);                         /* 文本色 / Text color */
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);  /* 聚焦阴影 / Focus shadow */
+}
+
+/* 表单占位符 / Form placeholder */
+.form-control::placeholder {
+    color: var(--text-secondary);  /* 占位符颜色 / Placeholder color */
+}
+
+/* 模态框内容 / Modal content */
+.modal-content {
+    background-color: var(--bg-primary);  /* 背景色 / Background color */
+    border-color: var(--border-color);    /* 边框色 / Border color */
+}
+
+/* 模态框头部和底部 / Modal header and footer */
+.modal-header, .modal-footer {
+    border-color: var(--border-color);  /* 边框色 / Border color */
+}
+
+/* 列表组项 / List group item */
+.list-group-item {
+    background-color: var(--bg-primary);  /* 背景色 / Background color */
+    border-color: var(--border-color);    /* 边框色 / Border color */
+    color: var(--text-primary);           /* 文本色 / Text color */
+}
+
+/* 悬停列表组项 / Hover list group item */
+.list-group-item:hover {
+    background-color: var(--bg-secondary);  /* 背景色 / Background color */
+}
+
+/* 激活列表组项 / Active list group item */
+.list-group-item.active {
+    background-color: #0d6efd;  /* 背景色 / Background color */
+    border-color: #0d6efd;      /* 边框色 / Border color */
+}
+
+/* 导航标签页 / Nav tabs */
+.nav-tabs {
+    border-color: var(--border-color);  /* 边框色 / Border color */
+}
+
+/* 导航标签页链接 / Nav tab link */
+.nav-tabs .nav-link {
+    color: var(--text-secondary);     /* 文本色 / Text color */
+    border-color: var(--border-color);  /* 边框色 / Border color */
+}
+
+/* 悬停导航标签页链接 / Hover nav tab link */
+.nav-tabs .nav-link:hover {
+    border-color: var(--border-color);        /* 边框色 / Border color */
+    background-color: var(--bg-secondary);  /* 背景色 / Background color */
+}
+
+/* 激活导航标签页链接 / Active nav tab link */
+.nav-tabs .nav-link.active {
+    color: var(--text-primary);              /* 文本色 / Text color */
+    background-color: var(--bg-primary);     /* 背景色 / Background color */
+    border-color: var(--border-color) var(--border-color) var(--bg-primary);  /* 边框色 / Border color */
+}
+
+/* 轮廓次要按钮 / Outline secondary button */
+.btn-outline-secondary {
+    border-color: var(--border-color);  /* 边框色 / Border color */
+    color: var(--text-secondary);       /* 文本色 / Text color */
+}
+
+/* 悬停轮廓次要按钮 / Hover outline secondary button */
+.btn-outline-secondary:hover {
+    background-color: var(--bg-secondary);  /* 背景色 / Background color */
+    border-color: var(--border-color);       /* 边框色 / Border color */
+    color: var(--text-primary);              /* 文本色 / Text color */
+}
+
+/* ==================== 聊天样式 / Chat Styles ==================== */
+
+/* 聊天消息容器 / Chat messages container */
+.chat-messages {
+    height: 450px;                              /* 高度 / Height */
+    overflow-y: auto;                           /* 垂直滚动 / Vertical scroll */
+    background-color: var(--bg-secondary);    /* 背景色 / Background color */
+    border-radius: 0.375rem;                    /* 圆角 / Border radius */
+    padding: 1rem;                              /* 内边距 / Padding */
+}
+
+/* 聊天消息 / Chat message */
+.chat-message {
+    margin-bottom: 1rem;              /* 下边距 / Bottom margin */
+    display: flex;                     /* 弹性布局 / Flex layout */
+    flex-direction: column;            /* 纵向排列 / Column direction */
+}
+
+/* 用户消息 / User message */
+.chat-message.user {
+    align-items: flex-end;  /* 右对齐 / Right align */
+}
+
+/* 智能体消息 / Agent message */
+.chat-message.agent {
+    align-items: flex-start;  /* 左对齐 / Left align */
+}
+
+/* 聊天气泡 / Chat bubble */
+.chat-bubble {
+    max-width: 75%;                    /* 最大宽度 / Maximum width */
+    padding: 0.75rem 1rem;            /* 内边距 / Padding */
+    border-radius: 1rem;                /* 圆角 / Border radius */
+    word-wrap: break-word;              /* 自动换行 / Word wrap */
+    line-height: 1.5;                   /* 行高 / Line height */
+}
+
+/* 用户聊天气泡 / User chat bubble */
+.chat-message.user .chat-bubble {
+    background-color: #0d6efd;                  /* 背景色 / Background color */
+    color: white;                                /* 文本色 / Text color */
+    border-bottom-right-radius: 0.25rem;        /* 右下角圆角 / Bottom right radius */
+}
+
+/* 智能体聊天气泡 / Agent chat bubble */
+.chat-message.agent .chat-bubble {
+    background-color: var(--bg-primary);  /* 背景色 / Background color */
+    border: 1px solid var(--border-color);  /* 边框 / Border */
+    border-bottom-left-radius: 0.25rem;      /* 左下角圆角 / Bottom left radius */
+}
+
+/* 聊天时间 / Chat time */
+.chat-time {
+    font-size: 0.75rem;                /* 字体大小 / Font size */
+    color: var(--text-secondary);       /* 文本色 / Text color */
+    margin-top: 0.25rem;                /* 上边距 / Top margin */
+}
+
+/* ==================== 其他样式 / Other Styles ==================== */
+
+/* 结果区域 / Result area */
+.result-area {
+    background-color: var(--bg-secondary);       /* 背景色 / Background color */
+    border: 1px solid var(--border-color);       /* 边框 / Border */
+    border-radius: 0.375rem;                      /* 圆角 / Border radius */
+    padding: 1rem;                                /* 内边距 / Padding */
+    min-height: 350px;                            /* 最小高度 / Minimum height */
+    max-height: 500px;                            /* 最大高度 / Maximum height */
+    overflow-y: auto;                             /* 垂直滚动 / Vertical scroll */
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;  /* 等宽字体 / Monospace font */
+    font-size: 0.875rem;                          /* 字体大小 / Font size */
+    white-space: pre-wrap;                         /* 保留空白 / Preserve whitespace */
+    word-wrap: break-word;                         /* 自动换行 / Word wrap */
+    color: var(--text-primary);                   /* 文本色 / Text color */
+}
+
+/* 智能体卡片 / Agent card */
+.agent-card {
+    cursor: pointer;                                            /* 鼠标指针 / Cursor */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;  /* 过渡动画 / Transition animation */
+    border: 2px solid transparent;                             /* 边框 / Border */
+}
+
+/* 悬停智能体卡片 / Hover agent card */
+.agent-card:hover {
+    transform: translateY(-3px);              /* 上移 / Move up */
+    box-shadow: var(--shadow-md);             /* 阴影 / Shadow */
+}
+
+/* 选中智能体卡片 / Selected agent card */
+.agent-card.selected {
+    border-color: #0d6efd;  /* 边框色 / Border color */
+}
+
+/* 按钮组激活按钮 / Button group active button */
+.btn-group .btn.active {
+    background-color: #0d6efd;  /* 背景色 / Background color */
+    border-color: #0d6efd;      /* 边框色 / Border color */
+}
+
+/* 状态徽章 / Status badge */
+.status-badge {
+    font-size: 0.75rem;          /* 字体大小 / Font size */
+    padding: 0.35em 0.65em;      /* 内边距 / Padding */
+}
+
+/* 两行截断文本 / Two-line truncation */
+.text-truncate-2 {
+    display: -webkit-box;              /* 弹性框 / Flex box */
+    -webkit-line-clamp: 2;            /* 行数限制 / Line limit */
+    -webkit-box-orient: vertical;      /* 纵向 / Vertical */
+    overflow: hidden;                   /* 溢出隐藏 / Overflow hidden */
+}
+
+/* ==================== 响应式样式 / Responsive Styles ==================== */
+
+/* 大屏幕 / Large screen */
+@media (min-width: 1024px) {
+    .container-fluid {
+        max-width: 1400px;  /* 最大宽度 / Maximum width */
+    }
+}
+
+/* ==================== 滚动条样式 / Scrollbar Styles ==================== */
+
+/* 滚动条 / Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;   /* 宽度 / Width */
+    height: 8px;  /* 高度 / Height */
+}
+
+/* 滚动条轨道 / Scrollbar track */
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);  /* 背景色 / Background color */
+    border-radius: 4px;                 /* 圆角 / Border radius */
+}
+
+/* 滚动条滑块 / Scrollbar thumb */
+::-webkit-scrollbar-thumb {
+    background: var(--text-secondary);  /* 背景色 / Background color */
+    border-radius: 4px;                  /* 圆角 / Border radius */
+}
+
+/* 悬停滚动条滑块 / Hover scrollbar thumb */
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-primary);  /* 背景色 / Background color */
+}
+
+/* ==================== Toast 容器 / Toast Container ==================== */
+
+.toast-container {
+    position: fixed;    /* 固定位置 / Fixed position */
+    top: 70px;          /* 顶部距离 / Top distance */
+    right: 20px;        /* 右侧距离 / Right distance */
+    z-index: 9999;      /* 层级 / Z-index */
+}
