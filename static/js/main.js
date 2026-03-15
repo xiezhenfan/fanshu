@@ -17,7 +17,13 @@ let agentTemplates = [];       // 智能体模板列表 / Agent template list
 document.addEventListener('DOMContentLoaded', async () => {
     // 初始化语言显示 / Initialize language display
     const savedLang = localStorage.getItem('language') || 'zh-CN';
-    updateLanguageDisplay(savedLang);
+    const langSelect = document.getElementById('langSelect');
+    if (langSelect) {
+        langSelect.value = savedLang;
+        langSelect.addEventListener('change', (e) => {
+            setLanguage(e.target.value);
+        });
+    }
     
     // 检查登录状态 / Check login status
     try {
@@ -1319,6 +1325,15 @@ async function loadLogo() {
         const data = await response.json();
         
         if (data.success && data.logo_url) {
+            // 导航栏 / Nav bar
+            const navLogo = document.getElementById('navLogo');
+            const navLogoEmoji = document.getElementById('navLogoEmoji');
+            if (navLogo) {
+                navLogo.src = data.logo_url + '?t=' + Date.now();
+                navLogo.style.display = 'inline-block';
+                if (navLogoEmoji) navLogoEmoji.style.display = 'none';
+            }
+            
             // 首页 / Index page
             const currentLogo = document.getElementById('currentLogo');
             const currentLogoEmoji = document.getElementById('currentLogoEmoji');
@@ -1357,10 +1372,10 @@ function setLanguage(lang) {
 }
 
 function updateLanguageDisplay(lang) {
-    const langText = lang === 'zh-CN' ? '中文' : lang === 'zh-TW' ? '中文' : 'English';
-    const currentLang = document.getElementById('currentLang');
-    if (currentLang) {
-        currentLang.textContent = langText;
+    const langText = lang === 'zh-CN' ? '简体中文' : lang === 'zh-TW' ? '繁體中文' : 'English';
+    const langSelect = document.getElementById('langSelect');
+    if (langSelect) {
+        langSelect.value = lang;
     }
     // 刷新页面以加载新语言 / Refresh page to load new language
     location.reload();

@@ -4,15 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>番薯焗龙虾</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap-icons.min.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
-                <span data-i18n="app.title">番薯焗龙虾</span>
+                <img id="navLogo" src="" style="display:none; height:40px; border-radius:5px; margin-right:10px;" alt="Logo">
+                <span id="navLogoEmoji" style="display:none; font-size:1.5rem; margin-right:10px;">🦞🍠</span>
+                <span>番薯焗龙虾</span>
             </a>
             <div class="d-flex align-items-center gap-3">
                 <select id="langSelect" class="form-select form-select-sm" style="width: auto;">
@@ -30,15 +32,16 @@
                     <button type="button" class="btn btn-outline-light btn-sm active" id="themeAuto" title="Auto">
                         <i class="bi bi-circle-half"></i>
                     </button>
-                    <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#userManageModal" title="用户管理">
-                        <i class="bi bi-people"></i>
-                    </button>
-                    <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#logoModal" title="Logo设置">
-                        <i class="bi bi-image"></i>
-                    </button>
-                    <a href="/logout" class="btn btn-outline-light btn-sm" title="登出">
-                        <i class="bi bi-box-arrow-right"></i>
-                    </a>
+                </div>
+                <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#userManageModal" title="用户管理">
+                    <i class="bi bi-people"></i>
+                </button>
+                <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#logoModal" title="Logo设置">
+                    <i class="bi bi-image"></i>
+                </button>
+                <a href="/logout" class="btn btn-outline-light btn-sm" title="登出">
+                    <i class="bi bi-box-arrow-right"></i>
+                </a>
                 </div>
             </div>
         </div>
