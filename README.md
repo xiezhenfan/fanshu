@@ -1,10 +1,10 @@
-# rlzclaw
+# 番薯
 
 简体中文 | [English](#english)
 
 ## 简介
 
-rlzclaw 是一个基于 Flask 的物联网智能体管理平台，支持配置管理、模型集成、飞书机器人集成等功能。
+番薯是一个基于 Flask 的物联网智能体管理平台，支持配置管理、模型集成、飞书机器人集成等功能。
 
 ## 功能特性
 
@@ -32,11 +32,12 @@ pip install -r requirements.txt
 ### 配置
 
 1. 复制配置文件（可选）：
+
 ```bash
 cp config/agents.json.example config/agents.json
 ```
 
-2. 运行应用：
+1. 运行应用：
 
 ```bash
 # 开发模式
@@ -51,6 +52,7 @@ gunicorn -w 4 -b 0.0.0.0:5000 app:app
 打开浏览器访问：`http://localhost:5000`
 
 默认登录凭据：
+
 - 用户名：`fango`
 - 密码：`fanshu@2026`
 
@@ -83,6 +85,7 @@ rlzclaw/
 ### 小龙虾备份
 
 备份 OpenClaw 安装目录，包括：
+
 - `/home/ubuntu/openclaw-main`
 - `/home/ubuntu/.openclaw`
 - 系统服务文件
@@ -103,7 +106,7 @@ rlzclaw/
 
 MIT License - 请查看 [LICENSE](LICENSE) 文件。
 
----
+***
 
 ## English
 
@@ -133,6 +136,7 @@ python app.py
 Access at: `http://localhost:5000`
 
 Default credentials:
+
 - Username: `fango`
 - Password: `fanshu@2026`
 
