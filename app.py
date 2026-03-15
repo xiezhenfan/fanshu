@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-OpenClaw 配置管理 Web 应用
+番薯焗龙虾 Web 应用
 Flask 后端服务 - 对接 OpenClaw
 
 OpenClaw Configuration Management Web Application
@@ -601,6 +601,44 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+@app.route('/api/logo', methods=['POST'])
+@login_required
+def upload_logo():
+    """上传Logo / Upload logo"""
+    if 'logo' not in request.files:
+        return jsonify({'success': False, 'error': '请选择图片文件'})
+    
+    file = request.files['logo']
+    if file.filename == '':
+        return jsonify({'success': False, 'error': '请选择图片文件'})
+    
+    # 检查文件类型 / Check file type
+    allowed_extensions = {'.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp'}
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in allowed_extensions:
+        return jsonify({'success': False, 'error': '仅支持 PNG, JPG, GIF, SVG, WEBP 格式'})
+    
+    # 保存文件 / Save file
+    logo_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'img')
+    os.makedirs(logo_dir, exist_ok=True)
+    
+    logo_path = os.path.join(logo_dir, 'logo' + ext)
+    file.save(logo_path)
+    
+    return jsonify({'success': True, 'logo_url': f'/static/img/logo{ext}?t={int(time.time())}'})
+
+@app.route('/api/logo', methods=['GET'])
+def get_logo():
+    """获取当前Logo / Get current logo"""
+    logo_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'img')
+    
+    for ext in ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp']:
+        logo_path = os.path.join(logo_dir, 'logo' + ext)
+        if os.path.exists(logo_path):
+            return jsonify({'success': True, 'logo_url': f'/static/img/logo{ext}'})
+    
+    return jsonify({'success': False, 'logo_url': None})
+
 @app.route('/change-password', methods=['POST'])
 def change_password():
     """修改密码 / Change password"""
@@ -637,6 +675,66 @@ def change_password():
     
     return jsonify({'success': True})
 
+@app.route('/api/users', methods=['GET'])
+@login_required
+def list_users():
+    """获取用户列表 / Get user list"""
+    users_data = load_users()
+    user_list = []
+    for username, info in users_data.items():
+        user_list.append({
+            'username': username,
+            'created_at': info.get('created_at', ''),
+            'must_change_password': info.get('must_change_password', False)
+        })
+    return jsonify({'success': True, 'users': user_list})
+
+@app.route('/api/users', methods=['POST'])
+@login_required
+def create_user():
+    """创建新用户 / Create new user"""
+    new_username = request.form.get('username', '').strip()
+    new_password = request.form.get('password', '').strip()
+    
+    if not new_username or not new_password:
+        return jsonify({'success': False, 'error': '请填写用户名和密码'})
+    
+    if len(new_password) < 6:
+        return jsonify({'success': False, 'error': '密码长度至少6位'})
+    
+    users_data = load_users()
+    
+    if new_username in users_data:
+        return jsonify({'success': False, 'error': '用户名已存在'})
+    
+    users_data[new_username] = {
+        'password': hashlib.md5(new_password.encode()).hexdigest(),
+        'must_change_password': False,
+        'created_at': datetime.now().isoformat()
+    }
+    save_users(users_data)
+    
+    return jsonify({'success': True, 'message': f'用户 {new_username} 创建成功'})
+
+@app.route('/api/users/<username>', methods=['DELETE'])
+@login_required
+def delete_user(username):
+    """删除用户 / Delete user"""
+    current_user = session['username']
+    
+    if username == current_user:
+        return jsonify({'success': False, 'error': '不能删除当前登录用户'})
+    
+    users_data = load_users()
+    
+    if username not in users_data:
+        return jsonify({'success': False, 'error': '用户不存在'})
+    
+    del users_data[username]
+    save_users(users_data)
+    
+    return jsonify({'success': True, 'message': f'用户 {username} 已删除'})
+
 @app.route('/check-login')
 def check_login():
     """检查登录状态 / Check login status"""
@@ -658,7 +756,7 @@ def index():
     Returns:
         HTML: 首页模板 / Index template
     """
-    return render_template('index.html')
+    return render_template('index.html', username=session.get('username', ''))
 
 @app.route('/api/models/providers/all', methods=['GET'])
 def get_all_model_providers():

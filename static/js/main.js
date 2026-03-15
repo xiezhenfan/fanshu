@@ -15,6 +15,10 @@ let agentTemplates = [];       // 智能体模板列表 / Agent template list
 
 // DOM 加载完成后执行 / Execute after DOM loaded
 document.addEventListener('DOMContentLoaded', async () => {
+    // 初始化语言显示 / Initialize language display
+    const savedLang = localStorage.getItem('language') || 'zh-CN';
+    updateLanguageDisplay(savedLang);
+    
     // 检查登录状态 / Check login status
     try {
         const loginRes = await fetch('/check-login');
@@ -43,6 +47,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadPresetModels();          // 加载预设模型 / Load preset models
     loadAllProviderTemplates();  // 加载所有厂商模板 / Load all provider templates
     loadAgentTemplates();       // 加载智能体模板 / Load agent templates
+    loadUsers();                // 加载用户列表 / Load user list
+    loadLogo();                // 加载Logo / Load logo
     
     // 聊天输入回车发送 / Chat input enter to send
     document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
@@ -1194,6 +1200,246 @@ async function changePassword() {
             window.location.href = '/logout';
         } else {
             errorDiv.textContent = result.error || '修改失败';
+            errorDiv.classList.remove('d-none');
+        }
+    } catch (error) {
+        errorDiv.textContent = '请求失败: ' + error.message;
+        errorDiv.classList.remove('d-none');
+    }
+}
+
+async function loadUsers() {
+    try {
+        // 获取当前登录用户 / Get current logged in user
+        const loginRes = await fetch('/check-login');
+        const loginData = await loginRes.json();
+        const currentUser = loginData.username || '';
+        
+        const response = await fetch('/api/users');
+        const result = await response.json();
+        
+        if (!result.success) {
+            document.getElementById('userList').innerHTML = '<small class="text-danger">加载失败</small>';
+            return;
+        }
+        
+        if (result.users.length === 0) {
+            document.getElementById('userList').innerHTML = '<small class="text-muted">暂无用户</small>';
+            return;
+        }
+        
+        document.getElementById('userList').innerHTML = result.users.map(u => `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span><i class="bi bi-person me-1"></i>${u.username}</span>
+                ${u.username !== currentUser ? `<button class="btn btn-xs btn-outline-danger" onclick="deleteUser('${u.username}')" title="删除"><i class="bi bi-trash"></i></button>` : '<small class="text-muted">(当前)</small>'}
+            </div>
+        `).join('');
+        
+        // 同时更新模态框中的用户列表 / Also update user list in modal
+        const userListModal = document.getElementById('userListModal');
+        if (userListModal) {
+            if (result.users.length === 0) {
+                userListModal.innerHTML = '<small class="text-muted">暂无用户</small>';
+            } else {
+                userListModal.innerHTML = result.users.map(u => `
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span><i class="bi bi-person me-1"></i>${u.username}</span>
+                        ${u.username !== currentUser ? `<button class="btn btn-xs btn-outline-danger" onclick="deleteUser('${u.username}')" title="删除"><i class="bi bi-trash"></i></button>` : '<small class="text-muted">(当前)</small>'}
+                    </div>
+                `).join('');
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load users:', error);
+        document.getElementById('userList').innerHTML = '<small class="text-danger">加载失败</small>';
+    }
+}
+
+async function addUser() {
+    const username = document.getElementById('newUsername').value.trim();
+    const password = document.getElementById('newUserPassword').value;
+    const errorDiv = document.getElementById('addUserError');
+    
+    errorDiv.classList.add('d-none');
+    
+    if (!username || !password) {
+        errorDiv.textContent = '请填写用户名和密码';
+        errorDiv.classList.remove('d-none');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(result.message);
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newUserPassword').value = '';
+            bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+            loadUsers();
+        } else {
+            errorDiv.textContent = result.error || '创建失败';
+            errorDiv.classList.remove('d-none');
+        }
+    } catch (error) {
+        errorDiv.textContent = '请求失败: ' + error.message;
+        errorDiv.classList.remove('d-none');
+    }
+}
+
+async function deleteUser(username) {
+    if (!confirm(`确定要删除用户 "${username}" 吗？`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/users/${username}`, { method: 'DELETE' });
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(result.message);
+            loadUsers();
+        } else {
+            alert('删除失败: ' + result.error);
+        }
+    } catch (error) {
+        alert('请求失败: ' + error.message);
+    }
+}
+
+async function loadLogo() {
+    try {
+        const response = await fetch('/api/logo');
+        const data = await response.json();
+        
+        if (data.success && data.logo_url) {
+            // 首页 / Index page
+            const currentLogo = document.getElementById('currentLogo');
+            const currentLogoEmoji = document.getElementById('currentLogoEmoji');
+            if (currentLogo) {
+                currentLogo.src = data.logo_url + '?t=' + Date.now();
+                currentLogo.style.display = 'inline-block';
+                if (currentLogoEmoji) currentLogoEmoji.style.display = 'none';
+            }
+            
+            // 登录页 / Login page
+            const loginLogo = document.getElementById('loginLogo');
+            const loginLogoEmoji = document.getElementById('loginLogoEmoji');
+            if (loginLogo) {
+                loginLogo.src = data.logo_url + '?t=' + Date.now();
+                loginLogo.style.display = 'inline-block';
+                if (loginLogoEmoji) loginLogoEmoji.style.display = 'none';
+            }
+            
+            // 模态框 / Modal
+            const currentLogoModal = document.getElementById('currentLogoModal');
+            const currentLogoEmojiModal = document.getElementById('currentLogoEmojiModal');
+            if (currentLogoModal) {
+                currentLogoModal.src = data.logo_url + '?t=' + Date.now();
+                currentLogoModal.style.display = 'inline-block';
+                if (currentLogoEmojiModal) currentLogoEmojiModal.style.display = 'none';
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load logo:', error);
+    }
+}
+
+function setLanguage(lang) {
+    localStorage.setItem('language', lang);
+    updateLanguageDisplay(lang);
+}
+
+function updateLanguageDisplay(lang) {
+    const langText = lang === 'zh-CN' ? '中文' : lang === 'zh-TW' ? '中文' : 'English';
+    const currentLang = document.getElementById('currentLang');
+    if (currentLang) {
+        currentLang.textContent = langText;
+    }
+    // 刷新页面以加载新语言 / Refresh page to load new language
+    location.reload();
+}
+
+async function uploadLogo() {
+    const fileInput = document.getElementById('logoInput');
+    const errorDiv = document.getElementById('logoError');
+    const successDiv = document.getElementById('logoSuccess');
+    
+    errorDiv.classList.add('d-none');
+    successDiv.classList.add('d-none');
+    
+    if (!fileInput.files || !fileInput.files[0]) {
+        errorDiv.textContent = '请选择图片文件';
+        errorDiv.classList.remove('d-none');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('logo', fileInput.files[0]);
+    
+    try {
+        const response = await fetch('/api/logo', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            successDiv.textContent = 'Logo 上传成功！';
+            successDiv.classList.remove('d-none');
+            loadLogo();
+            fileInput.value = '';
+        } else {
+            errorDiv.textContent = result.error || '上传失败';
+            errorDiv.classList.remove('d-none');
+        }
+    } catch (error) {
+        errorDiv.textContent = '请求失败: ' + error.message;
+        errorDiv.classList.remove('d-none');
+    }
+}
+
+async function uploadLogoModal() {
+    const fileInput = document.getElementById('logoInputModal');
+    const errorDiv = document.getElementById('logoErrorModal');
+    const successDiv = document.getElementById('logoSuccessModal');
+    
+    errorDiv.classList.add('d-none');
+    successDiv.classList.add('d-none');
+    
+    if (!fileInput.files || !fileInput.files[0]) {
+        errorDiv.textContent = '请选择图片文件';
+        errorDiv.classList.remove('d-none');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('logo', fileInput.files[0]);
+    
+    try {
+        const response = await fetch('/api/logo', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            successDiv.textContent = 'Logo 上传成功！';
+            successDiv.classList.remove('d-none');
+            loadLogo();
+            fileInput.value = '';
+            // 刷新页面 / Reload page
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            errorDiv.textContent = result.error || '上传失败';
             errorDiv.classList.remove('d-none');
         }
     } catch (error) {

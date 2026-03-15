@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录 - 我是一个大番薯</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -18,9 +18,9 @@
             background: white;
             border-radius: 15px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            overflow: hidden;
-            max-width: 400px;
             width: 100%;
+            max-width: 400px;
+            overflow: hidden;
         }
         .login-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -42,13 +42,31 @@
         .btn-primary:hover {
             background: linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%);
         }
+        .lang-dropdown {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
     </style>
 </head>
 <body>
     <div class="login-card">
         <div class="login-header">
-            <h3><i class="bi bi-shield-lock"></i> 我是一个大番薯</h3>
-            <p class="mb-0">请登录以继续</p>
+            <div class="dropdown lang-dropdown">
+                <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" id="langBtn">
+                    <i class="bi bi-globe"></i> <span id="loginLangText">中文</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" onclick="setLoginLanguage('zh-CN')">中文简体</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="setLoginLanguage('zh-TW')">中文繁體</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="setLoginLanguage('en')">English</a></li>
+                </ul>
+            </div>
+            <div style="text-align: center;">
+                <img id="loginLogo" src="" style="display:none; width:100px; height:100px; border-radius:50%; margin-bottom:10px;" alt="Logo">
+            </div>
+            <h3><span data-i18n="login.title">我是一个大番薯</span></h3>
+            <p class="mb-0" data-i18n="login.subtitle">请登录以继续</p>
         </div>
         <div class="login-body">
             {% if error %}
@@ -58,24 +76,84 @@
             {% endif %}
             <form method="POST" action="/login">
                 <div class="mb-3">
-                    <label for="username" class="form-label">用户名</label>
+                    <label for="username" class="form-label" data-i18n="login.username">用户名</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-person"></i></span>
                         <input type="text" class="form-control" id="username" name="username" required autofocus>
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label for="password" class="form-label">密码</label>
+                    <label for="password" class="form-label" data-i18n="login.password">密码</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-key"></i></span>
                         <input type="password" class="form-control" id="password" name="password" required>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-box-arrow-in-right"></i> 登录
+                    <i class="bi bi-box-arrow-in-right"></i> <span data-i18n="login.submit">登录</span>
                 </button>
             </form>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const loginI18n = {
+            'zh-CN': {
+                title: '我是一个大番薯',
+                subtitle: '请登录以继续',
+                username: '用户名',
+                password: '密码',
+                submit: '登录'
+            },
+            'zh-TW': {
+                title: '我是一個大番薯',
+                subtitle: '請登入以繼續',
+                username: '用戶名',
+                password: '密碼',
+                submit: '登入'
+            },
+            'en': {
+                title: 'I am a Big Sweet Potato',
+                subtitle: 'Please login to continue',
+                username: 'Username',
+                password: 'Password',
+                submit: 'Login'
+            }
+        };
+
+        function setLoginLanguage(lang) {
+            localStorage.setItem('language', lang);
+            updateLoginLanguage(lang);
+        }
+
+        function updateLoginLanguage(lang) {
+            const texts = loginI18n[lang] || loginI18n['zh-CN'];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (texts[key]) {
+                    el.textContent = texts[key];
+                }
+            });
+            document.getElementById('loginLangText').textContent = lang === 'zh-CN' ? '中文' : lang === 'zh-TW' ? '中文' : 'English';
+        }
+
+        // 初始化语言 / Initialize language
+        (function() {
+            const savedLang = localStorage.getItem('language') || 'zh-CN';
+            updateLoginLanguage(savedLang);
+        })();
+
+        // 加载Logo / Load logo
+        fetch('/api/logo')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.logo_url) {
+                    document.getElementById('loginLogo').src = data.logo_url + '?t=' + Date.now();
+                    document.getElementById('loginLogo').style.display = 'block';
+                    document.getElementById('loginLogoEmoji').style.display = 'none';
+                }
+            })
+            .catch(() => {});
+    </script>
 </body>
 </html>

@@ -12,7 +12,6 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
-                <span style="font-size: 1.5rem;">🦞🍠</span>
                 <span data-i18n="app.title">番薯焗龙虾</span>
             </a>
             <div class="d-flex align-items-center gap-3">
@@ -31,6 +30,12 @@
                     <button type="button" class="btn btn-outline-light btn-sm active" id="themeAuto" title="Auto">
                         <i class="bi bi-circle-half"></i>
                     </button>
+                    <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#userManageModal" title="用户管理">
+                        <i class="bi bi-people"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#logoModal" title="Logo设置">
+                        <i class="bi bi-image"></i>
+                    </button>
                     <a href="/logout" class="btn btn-outline-light btn-sm" title="登出">
                         <i class="bi bi-box-arrow-right"></i>
                     </a>
@@ -40,6 +45,19 @@
     </nav>
 
     <div class="container-fluid py-3">
+        <div class="d-flex justify-content-end mb-2">
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-globe"></i> <span id="currentLang">中文</span>
+                </button>
+                <ul class="dropdown-menu" id="langDropdown">
+                    <li><a class="dropdown-item" href="#" onclick="setLanguage('zh-CN')">中文简体</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="setLanguage('zh-TW')">中文繁體</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="setLanguage('en')">English</a></li>
+                </ul>
+            </div>
+        </div>
+        
         <ul class="nav nav-tabs" id="mainTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="feishu-tab" data-bs-toggle="tab" data-bs-target="#feishu" type="button" role="tab">
@@ -338,6 +356,74 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" onclick="changePassword()">确认修改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加用户模态框 -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>添加用户</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">用户名</label>
+                        <input type="text" class="form-control" id="newUsername" placeholder="请输入用户名">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">密码</label>
+                        <input type="password" class="form-control" id="newUserPassword" placeholder="请输入密码（至少6位）">
+                    </div>
+                    <div id="addUserError" class="alert alert-danger d-none"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="addUser()">确认添加</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户管理模态框 -->
+    <div class="modal fade" id="userManageModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-people me-2"></i>用户管理</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="userListModal" class="mb-3">
+                        <small class="text-muted">加载中...</small>
+                    </div>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <i class="bi bi-person-plus me-1"></i>添加用户
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logo设置模态框 -->
+    <div class="modal fade" id="logoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-image me-2"></i>Logo 设置</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="currentLogoModal" src="" style="max-width:150px; max-height:150px; display:none;" alt="当前Logo" class="mb-3">
+                    <div id="currentLogoEmojiModal" style="font-size:5rem;" class="mb-3">🦞🍠</div>
+                    <input type="file" class="form-control mb-2" id="logoInputModal" accept=".png,.jpg,.jpeg,.gif,.svg,.webp">
+                    <button class="btn btn-primary" onclick="uploadLogoModal()">
+                        <i class="bi bi-upload me-1"></i>上传 Logo
+                    </button>
+                    <div id="logoErrorModal" class="alert alert-danger mt-2 d-none"></div>
+                    <div id="logoSuccessModal" class="alert alert-success mt-2 d-none"></div>
                 </div>
             </div>
         </div>
