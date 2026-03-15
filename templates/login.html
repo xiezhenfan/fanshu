@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录 - 我是一个大番薯</title>
-    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/bootstrap-icons.min.css') }}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -58,10 +58,9 @@
                 <option value="en">English</option>
             </select>
             <div style="text-align: center;">
-                <img id="loginLogo" src="" style="display:none; width:100px; height:100px; border-radius:50%; margin-bottom:10px;" alt="Logo">
+                <img id="loginLogo" src="" style="display:none; width:215px; height:215px; border-radius:50%;" alt="Logo">
+                <h3 style="margin-top: 15px;">我是一个大番薯</h3>
             </div>
-            <h3>我是一个大番薯</h3>
-            <p class="mb-0">请登录以继续</p>
         </div>
         <div class="login-body">
             {% if error %}
