@@ -112,7 +112,7 @@ function renderAgentGraph() {
         .attr('y', d => d.isMain ? -25 : -18)
         .attr('width', d => d.isMain ? 50 : 36)
         .attr('height', d => d.isMain ? 50 : 36)
-        .attr('xlink:href', d => d.avatarUrl || 'https://via.placeholder.com/40')
+        .attr('xlink:href', d => d.avatarUrl || 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=robot%20icon%20simple%20flat%20design&image_size=square')
         .attr('clip-path', d => `circle(${d.isMain ? 25 : 18}px at center)`);
     
     node.on('click', (event, d) => {
