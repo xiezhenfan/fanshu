@@ -76,12 +76,69 @@ CONFIG_DIR = os.path.join(BASE_DIR, 'config')          # 配置文件目录 / Co
 LOCALE_DIR = os.path.join(BASE_DIR, 'locale')           # 国际化文件目录 / Localization file directory
 
 # OpenClaw 相关路径配置 / OpenClaw related path configuration
-# 从环境变量读取，支持自定义安装位置 / Read from environment variables, support custom installation location
-OPENCLAW_HOME = '/home/ubuntu/.openclaw'  # OpenClaw 数据目录 / OpenClaw data directory
-OPENCLAW_DIR = os.environ.get('OPENCLAW_DIR', '/home/ubuntu/openclaw-main')          # OpenClaw 安装目录 / OpenClaw installation directory
+# 从环境变量读取，支持自定义安装位置，自动寻找 / Read from environment variables, support custom installation location, auto-discovery
+def find_openclaw_dir():
+    """自动寻找 OpenClaw 安装目录 / Auto-detect OpenClaw installation directory"""
+    user_home = os.path.expanduser('~')
+    possible_dirs = [
+        os.environ.get('OPENCLAW_DIR', ''),
+        os.path.join(user_home, 'openclaw-main'),
+        os.path.join(user_home, 'openclaw'),
+        os.path.expanduser('~/openclaw-main'),
+        os.path.expanduser('~/openclaw'),
+    ]
+    for dir_path in possible_dirs:
+        if dir_path and os.path.exists(dir_path) and os.path.isdir(dir_path):
+            return dir_path
+    return possible_dirs[1]  # 默认回退 / Default fallback
+
+def find_openclaw_home():
+    """自动寻找 OpenClaw 数据目录 / Auto-detect OpenClaw data directory"""
+    user_home = os.path.expanduser('~')
+    possible_dirs = [
+        os.environ.get('OPENCLAW_HOME', ''),
+        os.path.join(user_home, '.openclaw'),
+        os.path.expanduser('~/.openclaw'),
+    ]
+    for dir_path in possible_dirs:
+        if dir_path and os.path.exists(dir_path) and os.path.isdir(dir_path):
+            return dir_path
+    return possible_dirs[1]  # 默认回退 / Default fallback
+
+OPENCLAW_HOME = find_openclaw_home()  # OpenClaw 数据目录 / OpenClaw data directory
+OPENCLAW_DIR = find_openclaw_dir()     # OpenClaw 安装目录 / OpenClaw installation directory
 OPENCLAW_CONFIG = os.path.join(OPENCLAW_HOME, 'openclaw.json')                        # OpenClaw 主配置文件 / OpenClaw main configuration file
 OPENCLAW_STATE_DIR = OPENCLAW_HOME                                                      # 状态文件目录 / State file directory
 OPENCLAW_VERSIONS_DIR = os.path.join(OPENCLAW_HOME, 'versions')                        # 版本备份目录 / Version backup directory
+
+# 服务器命令配置文件 / Server command configuration file
+SERVER_CONFIG_FILE = os.path.join(CONFIG_DIR, 'server_config.json')
+
+def load_server_config():
+    """加载服务器命令配置 / Load server command configuration"""
+    default_config = {
+        'gateway_service': 'openclaw-gateway',
+        'config_service': 'openclaw-config',
+        'commands': [
+            {
+                'id': 'restart_gateway',
+                'command': 'sudo systemctl restart openclaw-gateway',
+                'names': {'zh-CN': '重启网关', 'zh-TW': '重啟閘道', 'en': 'Restart Gateway'}
+            },
+            {
+                'id': 'gateway_status',
+                'command': 'sudo systemctl status openclaw-gateway',
+                'names': {'zh-CN': '查看网关状态', 'zh-TW': '查看閘道狀態', 'en': 'Gateway Status'}
+            }
+        ]
+    }
+    if os.path.exists(SERVER_CONFIG_FILE):
+        try:
+            with open(SERVER_CONFIG_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except:
+            pass
+    return default_config
 
 # 模型厂商配置文件 / Model provider configuration file
 MODEL_PROVIDERS_FILE = os.path.join(CONFIG_DIR, 'model_providers.json')
@@ -1353,7 +1410,7 @@ MAX_BACKUP_VERSIONS = 3  # 最多保留备份版本数 / Max backup versions to 
 
 def cleanup_old_backups(backup_type, max_keep=MAX_BACKUP_VERSIONS):
     """清理旧备份，只保留最近版本 / Clean up old backups, keep only recent versions"""
-    backup_dir = '/home/ubuntu/backups'
+    backup_dir = os.environ.get('BACKUP_DIR', '/home/ubuntu/backups')
     if not os.path.exists(backup_dir):
         return
     
@@ -1377,7 +1434,7 @@ def run_backup_task(task_id, backup_type):
     """后台备份任务 / Background backup task"""
     import tarfile
     
-    backup_dir = '/home/ubuntu/backups'
+    backup_dir = os.environ.get('BACKUP_DIR', '/home/ubuntu/backups')
     os.makedirs(backup_dir, exist_ok=True)
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     
@@ -1387,17 +1444,17 @@ def run_backup_task(task_id, backup_type):
     try:
         if backup_type == 'openclaw':
             openclaw_dirs = [
-                '/home/ubuntu/openclaw-main',
-                '/home/ubuntu/.openclaw',
+                OPENCLAW_DIR,
+                OPENCLAW_HOME,
             ]
             openclaw_files = [
                 '/etc/systemd/system/openclaw-config.service',
                 '/etc/systemd/system/openclaw-gateway.service',
             ]
             
-            if not os.path.exists('/home/ubuntu/openclaw-main'):
+            if not os.path.exists(OPENCLAW_DIR):
                 with backup_lock:
-                    backup_tasks[task_id] = {'status': 'error', 'error': 'Directory not found: /home/ubuntu/openclaw-main'}
+                    backup_tasks[task_id] = {'status': 'error', 'error': f'Directory not found: {OPENCLAW_DIR}'}
                 return
             
             # 第一步：创建 tar 文件 / Step 1: Create tar file
@@ -1441,11 +1498,11 @@ def run_backup_task(task_id, backup_type):
                 }
                 
         elif backup_type == 'rlzclaw':
-            rlzclaw_dir = '/home/ubuntu/rlzclaw'
+            rlzclaw_dir = BASE_DIR
             
             if not os.path.exists(rlzclaw_dir):
                 with backup_lock:
-                    backup_tasks[task_id] = {'status': 'error', 'error': 'Directory not found: /home/ubuntu/rlzclaw'}
+                    backup_tasks[task_id] = {'status': 'error', 'error': f'Directory not found: {rlzclaw_dir}'}
                 return
             
             # 第一步：创建 tar 文件 / Step 1: Create tar file
@@ -1556,7 +1613,7 @@ def list_backups():
     Returns:
         JSON: 备份文件列表 / Backup file list
     """
-    backup_dir = '/home/ubuntu/backups'
+    backup_dir = os.environ.get('BACKUP_DIR', '/home/ubuntu/backups')
     
     if not os.path.exists(backup_dir):
         return jsonify({'openclaw': [], 'rlzclaw': []})
@@ -1591,7 +1648,7 @@ def download_backup(filename):
     Returns:
         File: 备份文件 / Backup file
     """
-    backup_dir = '/home/ubuntu/backups'
+    backup_dir = os.environ.get('BACKUP_DIR', '/home/ubuntu/backups')
     filepath = os.path.join(backup_dir, filename)
     
     if not os.path.exists(filepath):
@@ -1611,7 +1668,7 @@ def delete_backup_file(filename):
     Returns:
         JSON: 操作结果 / Operation result
     """
-    backup_dir = '/home/ubuntu/backups'
+    backup_dir = os.environ.get('BACKUP_DIR', '/home/ubuntu/backups')
     filepath = os.path.join(backup_dir, filename)
     
     if not os.path.exists(filepath):
@@ -1750,24 +1807,35 @@ def get_commands():
     Returns:
         JSON: 命令列表 / Command list
     """
+    config = load_server_config()
     gateway_log_path = os.path.join(OPENCLAW_DIR, 'gateway.log')
-    commands = [
-        {
-            'id': 'restart_gateway',
-            'command': 'sudo systemctl restart openclaw-gateway',
-            'names': {'zh-CN': '重启网关', 'zh-TW': '重啟閘道', 'en': 'Restart Gateway'}
-        },
-        {
-            'id': 'gateway_status',
-            'command': 'sudo systemctl status openclaw-gateway',
-            'names': {'zh-CN': '查看网关状态', 'zh-TW': '查看閘道狀態', 'en': 'Gateway Status'}
-        },
-        {
-            'id': 'view_logs',
-            'command': f'tail -100 {gateway_log_path}',
-            'names': {'zh-CN': '查看运行日志', 'zh-TW': '查看執行日誌', 'en': 'View Logs'}
-        }
-    ]
+    
+    commands = config.get('commands', [])
+    
+    if not commands:
+        commands = [
+            {
+                'id': 'restart_gateway',
+                'command': f'sudo systemctl restart {config.get("gateway_service", "openclaw-gateway")}',
+                'names': {'zh-CN': '重启网关', 'zh-TW': '重啟閘道', 'en': 'Restart Gateway'}
+            },
+            {
+                'id': 'gateway_status',
+                'command': f'sudo systemctl status {config.get("gateway_service", "openclaw-gateway")}',
+                'names': {'zh-CN': '查看网关状态', 'zh-TW': '查看閘道狀態', 'en': 'Gateway Status'}
+            },
+            {
+                'id': 'view_logs',
+                'command': f'tail -100 {gateway_log_path}',
+                'names': {'zh-CN': '查看运行日志', 'zh-TW': '查看執行日誌', 'en': 'View Logs'}
+            }
+        ]
+    else:
+        # 动态更新配置文件中的日志查看命令路径 / Dynamically update log view command path in config
+        for cmd in commands:
+            if cmd.get('id') == 'view_logs':
+                cmd['command'] = f'tail -100 {gateway_log_path}'
+    
     return jsonify(commands)
 
 @app.route('/api/execute', methods=['POST'])
@@ -1782,14 +1850,26 @@ def execute_command():
     data = request.get_json()
     command = data.get('command', '')
     gateway_log_path = os.path.join(OPENCLAW_DIR, 'gateway.log')
+    config = load_server_config()
     
-    # 白名单验证 / Whitelist validation
-    allowed_commands = [
-        'sudo systemctl restart openclaw-gateway',
-        'sudo systemctl status openclaw-gateway',
-        f'tail -100 {gateway_log_path}',
-        f'cd {OPENCLAW_DIR} && source ~/.nvm/nvm.sh && node openclaw.mjs agents list'
-    ]
+    # 构建白名单 / Build whitelist
+    allowed_commands = [f'cd {OPENCLAW_DIR} && source ~/.nvm/nvm.sh && node openclaw.mjs agents list']
+    
+    # 添加配置文件中的命令，但动态替换日志路径 / Add commands from config, but dynamically replace log path
+    for cmd in config.get('commands', []):
+        cmd_str = cmd.get('command')
+        # 如果是日志查看命令，使用动态路径 / If it's log view command, use dynamic path
+        if cmd.get('id') == 'view_logs':
+            cmd_str = f'tail -100 {gateway_log_path}'
+        allowed_commands.append(cmd_str)
+    
+    # 如果没有配置文件，添加默认命令 / If no config, add default commands
+    if not config.get('commands'):
+        allowed_commands.extend([
+            f'sudo systemctl restart {config.get("gateway_service", "openclaw-gateway")}',
+            f'sudo systemctl status {config.get("gateway_service", "openclaw-gateway")}',
+            f'tail -100 {gateway_log_path}'
+        ])
     
     if command not in allowed_commands:
         return jsonify({'success': False, 'error': 'Command not allowed'})

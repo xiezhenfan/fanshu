@@ -1,0 +1,33 @@
+{
+  "gateway_service": "openclaw-gateway",
+  "config_service": "openclaw-config",
+  "commands": [
+    {
+      "id": "restart_gateway",
+      "command": "sudo systemctl restart openclaw-gateway",
+      "names": {
+        "zh-CN": "重启网关",
+        "zh-TW": "重啟閘道",
+        "en": "Restart Gateway"
+      }
+    },
+    {
+      "id": "gateway_status",
+      "command": "sudo systemctl status openclaw-gateway",
+      "names": {
+        "zh-CN": "查看网关状态",
+        "zh-TW": "查看閘道狀態",
+        "en": "Gateway Status"
+      }
+    },
+    {
+      "id": "view_logs",
+      "command": "tail -100 /home/ubuntu/openclaw-main/gateway.log",
+      "names": {
+        "zh-CN": "查看运行日志",
+        "zh-TW": "查看執行日誌",
+        "en": "View Logs"
+      }
+    }
+  ]
+}
