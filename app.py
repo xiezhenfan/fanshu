@@ -203,8 +203,11 @@ def write_agent_md_files(agent_id, data):
         return
     
     try:
-        # 智能体工作区目录 / Agent workspace directory
-        workspace_dir = os.path.join(OPENCLAW_HOME, 'workspace', 'agents', agent_id)
+        # 智能体工作区目录 - 主智能体直接在workspace目录下 / Agent workspace directory - main agent directly under workspace
+        if agent_id == 'main':
+            workspace_dir = os.path.join(OPENCLAW_HOME, 'workspace')
+        else:
+            workspace_dir = os.path.join(OPENCLAW_HOME, 'workspace', 'agents', agent_id)
         if not os.path.exists(workspace_dir):
             os.makedirs(workspace_dir, exist_ok=True)
         
@@ -238,7 +241,11 @@ def save_agent_archive(agent_id, data):
         return
     
     try:
-        workspace_dir = os.path.join(OPENCLAW_HOME, 'workspace', 'agents', agent_id)
+        # 智能体工作区目录 - 主智能体直接在workspace目录下 / Agent workspace directory - main agent directly under workspace
+        if agent_id == 'main':
+            workspace_dir = os.path.join(OPENCLAW_HOME, 'workspace')
+        else:
+            workspace_dir = os.path.join(OPENCLAW_HOME, 'workspace', 'agents', agent_id)
         if not os.path.exists(workspace_dir):
             os.makedirs(workspace_dir, exist_ok=True)
         
@@ -273,7 +280,11 @@ def load_agent_archive(agent_id):
         return {}
     
     try:
-        workspace_dir = os.path.join(OPENCLAW_HOME, 'workspace', 'agents', agent_id)
+        # 智能体工作区目录 - 主智能体直接在workspace目录下 / Agent workspace directory - main agent directly under workspace
+        if agent_id == 'main':
+            workspace_dir = os.path.join(OPENCLAW_HOME, 'workspace')
+        else:
+            workspace_dir = os.path.join(OPENCLAW_HOME, 'workspace', 'agents', agent_id)
         archive_file = os.path.join(workspace_dir, 'agent_archive.json')
         
         if os.path.exists(archive_file):
@@ -1293,6 +1304,10 @@ def delete_agent(agent_id):
     Returns:
         JSON: 操作结果 / Operation result
     """
+    # 禁止删除主智能体 / Prevent deleting main agent
+    if agent_id == 'main':
+        return jsonify({'success': False, 'error': '不能删除主智能体'})
+    
     config = load_openclaw_config()
     
     # 从列表中移除 / Remove from list

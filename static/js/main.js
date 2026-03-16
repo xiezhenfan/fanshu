@@ -859,12 +859,13 @@ let countdownModalInterval = null;    // 倒计时模态框定时器 / Countdown
  * Save agent
  */
 async function saveAgent() {
-    // 防止重复点击 - 第一步就移除 onclick / Prevent double click - remove onclick first
+    // 防止重复点击 / Prevent double click
     const saveBtn = document.getElementById('saveAgentBtn');
     const agentModal = document.getElementById('agentModal');
     
-    // 直接移除 onclick，禁用按钮 / Directly remove onclick, disable button
-    saveBtn.onclick = null;
+    // 只禁用按钮，不移除 onclick / Only disable button, don't remove onclick
+    if (isSavingAgent) return;
+    isSavingAgent = true;
     saveBtn.disabled = true;
     saveBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span>${t('common.saving') || '保存中...'}`;
     
@@ -924,12 +925,18 @@ async function saveAgent() {
         } else {
             // 保存失败 / Save failed
             alert(result.error || t('common.operationFailed'));
-            bootstrap.Modal.getInstance(agentModal)?.hide();
+            // 恢复按钮状态 / Restore button state
+            isSavingAgent = false;
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = t('common.save') || '保存';
         }
     } catch (error) {
         console.error('Failed to save agent:', error);
         alert(t('common.operationFailed'));
-        bootstrap.Modal.getInstance(agentModal)?.hide();
+        // 恢复按钮状态 / Restore button state
+        isSavingAgent = false;
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = t('common.save') || '保存';
     }
 }
 
