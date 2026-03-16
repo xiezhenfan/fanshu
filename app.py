@@ -479,7 +479,7 @@ def run_openclaw_command(cmd_args, timeout=120):
     """
     try:
         result = subprocess.run(
-            f'cd {OPENCLAW_DIR} && source ~/.nvm/nvm.sh && node openclaw.mjs {cmd_args}',
+            f'source ~/.nvm/nvm.sh && openclaw {cmd_args}',
             shell=True,
             capture_output=True,
             text=True,
@@ -1444,17 +1444,15 @@ def run_backup_task(task_id, backup_type):
     try:
         if backup_type == 'openclaw':
             openclaw_dirs = [
-                OPENCLAW_DIR,
                 OPENCLAW_HOME,
             ]
             openclaw_files = [
-                '/etc/systemd/system/openclaw-config.service',
                 '/etc/systemd/system/openclaw-gateway.service',
             ]
             
-            if not os.path.exists(OPENCLAW_DIR):
+            if not os.path.exists(OPENCLAW_HOME):
                 with backup_lock:
-                    backup_tasks[task_id] = {'status': 'error', 'error': f'Directory not found: {OPENCLAW_DIR}'}
+                    backup_tasks[task_id] = {'status': 'error', 'error': f'Directory not found: {OPENCLAW_HOME}'}
                 return
             
             # 第一步：创建 tar 文件 / Step 1: Create tar file
@@ -1808,7 +1806,7 @@ def get_commands():
         JSON: 命令列表 / Command list
     """
     config = load_server_config()
-    gateway_log_path = os.path.join(OPENCLAW_DIR, 'gateway.log')
+    gateway_service = config.get("gateway_service", "openclaw-gateway")
     
     commands = config.get('commands', [])
     
@@ -1816,25 +1814,25 @@ def get_commands():
         commands = [
             {
                 'id': 'restart_gateway',
-                'command': f'sudo systemctl restart {config.get("gateway_service", "openclaw-gateway")}',
+                'command': f'sudo systemctl restart {gateway_service}',
                 'names': {'zh-CN': '重启网关', 'zh-TW': '重啟閘道', 'en': 'Restart Gateway'}
             },
             {
                 'id': 'gateway_status',
-                'command': f'sudo systemctl status {config.get("gateway_service", "openclaw-gateway")}',
+                'command': f'sudo systemctl status {gateway_service}',
                 'names': {'zh-CN': '查看网关状态', 'zh-TW': '查看閘道狀態', 'en': 'Gateway Status'}
             },
             {
                 'id': 'view_logs',
-                'command': f'tail -100 {gateway_log_path}',
+                'command': f'sudo journalctl -u {gateway_service} -n 100 --no-pager',
                 'names': {'zh-CN': '查看运行日志', 'zh-TW': '查看執行日誌', 'en': 'View Logs'}
             }
         ]
     else:
-        # 动态更新配置文件中的日志查看命令路径 / Dynamically update log view command path in config
+        # 动态更新配置文件中的日志查看命令 / Dynamically update log view command in config
         for cmd in commands:
             if cmd.get('id') == 'view_logs':
-                cmd['command'] = f'tail -100 {gateway_log_path}'
+                cmd['command'] = f'sudo journalctl -u {gateway_service} -n 100 --no-pager'
     
     return jsonify(commands)
 
@@ -1849,26 +1847,26 @@ def execute_command():
     """
     data = request.get_json()
     command = data.get('command', '')
-    gateway_log_path = os.path.join(OPENCLAW_DIR, 'gateway.log')
     config = load_server_config()
+    gateway_service = config.get("gateway_service", "openclaw-gateway")
     
     # 构建白名单 / Build whitelist
-    allowed_commands = [f'cd {OPENCLAW_DIR} && source ~/.nvm/nvm.sh && node openclaw.mjs agents list']
+    allowed_commands = [f'source ~/.nvm/nvm.sh && openclaw agents list']
     
-    # 添加配置文件中的命令，但动态替换日志路径 / Add commands from config, but dynamically replace log path
+    # 添加配置文件中的命令，但动态替换日志命令 / Add commands from config, but dynamically replace log command
     for cmd in config.get('commands', []):
         cmd_str = cmd.get('command')
-        # 如果是日志查看命令，使用动态路径 / If it's log view command, use dynamic path
+        # 如果是日志查看命令，使用journalctl / If it's log view command, use journalctl
         if cmd.get('id') == 'view_logs':
-            cmd_str = f'tail -100 {gateway_log_path}'
+            cmd_str = f'sudo journalctl -u {gateway_service} -n 100 --no-pager'
         allowed_commands.append(cmd_str)
     
     # 如果没有配置文件，添加默认命令 / If no config, add default commands
     if not config.get('commands'):
         allowed_commands.extend([
-            f'sudo systemctl restart {config.get("gateway_service", "openclaw-gateway")}',
-            f'sudo systemctl status {config.get("gateway_service", "openclaw-gateway")}',
-            f'tail -100 {gateway_log_path}'
+            f'sudo systemctl restart {gateway_service}',
+            f'sudo systemctl status {gateway_service}',
+            f'sudo journalctl -u {gateway_service} -n 100 --no-pager'
         ])
     
     if command not in allowed_commands:

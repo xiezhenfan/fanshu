@@ -1,0 +1,15 @@
+[Unit]
+Description=OpenClaw Gateway Service
+After=network.target
+
+[Service]
+User=ubuntu
+Environment=NVM_DIR=/home/ubuntu/.nvm
+ExecStart=/bin/bash -c 'source $NVM_DIR/nvm.sh && openclaw gateway run --port 18789 --bind lan --auth token --token fbb88aef8d8bbbe1613f875e0f317e3241b14cf960e393f0ded108bb060f30d1'
+Restart=on-failure
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
