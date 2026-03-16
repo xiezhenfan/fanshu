@@ -67,9 +67,14 @@
                     <i class="bi bi-chat-dots me-1"></i><span data-i18n="nav.feishu">飞书配置</span>
                 </button>
             </li>
-            <li class="nav-item" role="presentation">
+            <li class="nav-item d-none" role="presentation">
                 <button class="nav-link" id="agents-tab" data-bs-toggle="tab" data-bs-target="#agents" type="button" role="tab">
                     <i class="bi bi-people me-1"></i><span data-i18n="nav.agents">智能体管理</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="agent-graph-tab" data-bs-toggle="tab" data-bs-target="#agent-graph" type="button" role="tab">
+                    <i class="bi bi-diagram-3 me-1"></i>智能体关系图
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -140,6 +145,21 @@
                 </div>
                 <div class="row" id="agentList">
                     <div class="col-12 text-center text-muted py-5" data-i18n="common.loading">加载中...</div>
+                </div>
+            </div>
+
+            <!-- 智能体关系图 -->
+            <div class="tab-pane fade" id="agent-graph" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">智能体关系图</h5>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="refreshAgentGraph()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>刷新
+                    </button>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div id="agentGraphContainer" style="width: 100%; height: 600px; position: relative;"></div>
+                    </div>
                 </div>
             </div>
 
@@ -484,6 +504,20 @@
                 <div class="modal-body">
                     <form id="agentForm">
                         <input type="hidden" id="agentId">
+                        <div class="mb-3 text-center">
+                            <label class="form-label d-block mb-2">智能体头像</label>
+                            <div class="d-inline-block">
+                                <div class="position-relative">
+                                    <img id="agentAvatar" src="" alt="智能体头像" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #dee2e6;">
+                                    <input type="file" id="agentAvatarInput" accept=".png,.jpg,.jpeg,.gif,.webp" style="display: none;">
+                                    <button type="button" class="btn btn-outline-primary position-absolute bottom-0 right-0" onclick="document.getElementById('agentAvatarInput').click()">
+                                        <i class="bi bi-camera"></i>
+                                    </button>
+                                </div>
+                                <p class="text-muted small mt-2">点击上传头像</p>
+                                <input type="hidden" id="agentAvatarUrl">
+                            </div>
+                        </div>
                         <div class="mb-3">
                             <label class="form-label" data-i18n="agent.agentName">智能体名称</label>
                             <input type="text" class="form-control" id="agentName" required>
@@ -497,23 +531,23 @@
                         <div id="modelSelectContainer"></div>
                         <div class="mb-3">
                             <label class="form-label" data-i18n="agent.identity">身份与权限体系</label>
-                            <textarea class="form-control" id="agentIdentity" rows="3"></textarea>
+                            <textarea class="form-control" id="agentIdentity" rows="1" style="resize: none; overflow-y: hidden;"></textarea>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" data-i18n="agent.skills">技能能力说明书</label>
-                            <textarea class="form-control" id="agentSkills" rows="3"></textarea>
+                            <textarea class="form-control" id="agentSkills" rows="1" style="resize: none; overflow-y: hidden;"></textarea>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" data-i18n="agent.personality">核心人格与价值观</label>
-                            <textarea class="form-control" id="agentPersonality" rows="3"></textarea>
+                            <textarea class="form-control" id="agentPersonality" rows="1" style="resize: none; overflow-y: hidden;"></textarea>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" data-i18n="agent.tools">工具集接入文档</label>
-                            <textarea class="form-control" id="agentTools" rows="3"></textarea>
+                            <textarea class="form-control" id="agentTools" rows="1" style="resize: none; overflow-y: hidden;"></textarea>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" data-i18n="agent.userProfile">用户画像与交互规范</label>
-                            <textarea class="form-control" id="agentUserProfile" rows="3"></textarea>
+                            <textarea class="form-control" id="agentUserProfile" rows="1" style="resize: none; overflow-y: hidden;"></textarea>
                         </div>
                     </form>
                 </div>
@@ -658,8 +692,10 @@
     <input type="file" id="importFile" accept=".json" style="display: none;">
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
     <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}?v=20260315"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=20260316"></script>
+    <script src="{{ url_for('static', filename='js/agent-graph.js') }}?v=20260316"></script>
 </body>
 </html>

@@ -257,6 +257,7 @@ def save_agent_archive(agent_id, data):
             'personality': data.get('personality', ''),
             'tools': data.get('tools', ''),
             'userProfile': data.get('userProfile', ''),
+            'avatarUrl': data.get('avatarUrl', ''),
             'updatedAt': datetime.now().isoformat()
         }
         
@@ -707,6 +708,46 @@ def get_logo():
     
     return jsonify({'success': False, 'logo_url': None})
 
+@app.route('/api/agent-avatar', methods=['POST'])
+@login_required
+def upload_agent_avatar():
+    """上传智能体头像 / Upload agent avatar"""
+    if 'avatar' not in request.files:
+        return jsonify({'success': False, 'error': '请选择图片文件'})
+    
+    file = request.files['avatar']
+    if file.filename == '':
+        return jsonify({'success': False, 'error': '请选择图片文件'})
+    
+    # 检查文件类型 / Check file type
+    allowed_extensions = {'.png', '.jpg', '.jpeg', '.gif', '.webp'}
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in allowed_extensions:
+        return jsonify({'success': False, 'error': '仅支持 PNG, JPG, GIF, WEBP 格式'})
+    
+    # 保存文件 / Save file
+    avatar_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'img', 'avatars')
+    os.makedirs(avatar_dir, exist_ok=True)
+    
+    import uuid
+    avatar_filename = f"agent_{uuid.uuid4().hex[:8]}{ext}"
+    avatar_path = os.path.join(avatar_dir, avatar_filename)
+    file.save(avatar_path)
+    
+    return jsonify({'success': True, 'avatar_url': f'/static/img/avatars/{avatar_filename}'})
+
+@app.route('/api/agent-avatar/<filename>', methods=['DELETE'])
+@login_required
+def delete_agent_avatar(filename):
+    """删除智能体头像 / Delete agent avatar"""
+    avatar_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'img', 'avatars')
+    avatar_path = os.path.join(avatar_dir, filename)
+    
+    if os.path.exists(avatar_path):
+        os.remove(avatar_path)
+    
+    return jsonify({'success': True})
+
 @app.route('/change-password', methods=['POST'])
 def change_password():
     """修改密码 / Change password"""
@@ -1122,20 +1163,36 @@ def get_agents():
         agent_id = ag.get('id', '')
         archive_data = load_agent_archive(agent_id) if agent_id else {}
         
+        # 提取角色名称 / Extract role name
+        role_name = ag.get('name', ag.get('id', 'Unnamed'))
+        identity_content = archive_data.get('identity', '')
+        if identity_content:
+            # 尝试从身份与权限体系中提取角色名称 / Try to extract role name from identity
+            import re
+            match = re.search(r'## 1\. 角色定义\s*([^\n]+)', identity_content)
+            if match:
+                role_name = match.group(1).strip()
+        
+        # 设置默认头像 / Set default avatar
+        avatar_url = archive_data.get('avatarUrl', '')
+        if not avatar_url:
+            avatar_url = 'https://via.placeholder.com/100'
+        
         agents.append({
             'id': ag.get('id', ''),
-            'name': ag.get('name', ag.get('id', 'Unnamed')),
+            'name': role_name,
             'modelId': pure_model_id,
             'fullModelId': agent_model,
             'providerId': provider_id,
             'baseUrl': base_url,
             'apiType': api_type,
             'hasApiKey': has_api_key,
-            'identity': archive_data.get('identity', ''),
+            'identity': identity_content,
             'skills': archive_data.get('skills', ''),
             'personality': archive_data.get('personality', ''),
             'tools': archive_data.get('tools', ''),
             'userProfile': archive_data.get('userProfile', ''),
+            'avatarUrl': avatar_url,
             'subagents': ag.get('subagents', {})
         })
     

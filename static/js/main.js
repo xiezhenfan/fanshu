@@ -25,6 +25,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
     
+    // 头像上传处理 / Avatar upload handling
+    const agentAvatarInput = document.getElementById('agentAvatarInput');
+    if (agentAvatarInput) {
+        agentAvatarInput.addEventListener('change', handleAvatarUpload);
+    }
+    
+    // 文本框高度自动适配 / Textarea auto height adjustment
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach(textarea => {
+        textarea.addEventListener('input', adjustTextareaHeight);
+        // 初始调整 / Initial adjustment
+        adjustTextareaHeight.call(textarea);
+    });
+    
     // 检查登录状态 / Check login status
     try {
         const loginRes = await fetch('/check-login');
@@ -450,18 +464,22 @@ function renderAgentList() {
     container.innerHTML = agents.map(ag => {
         const modelInfo = availableModels.find(m => m.id === ag.modelId);
         const modelDisplay = modelInfo ? modelInfo.name : ag.modelId || 'Default';
+        const isMainAgent = ag.id === 'main';
         return `
         <div class="col-md-4 mb-3">
             <div class="card agent-card h-100">
                 <div class="card-body">
-                    <h6 class="card-title"><i class="bi bi-robot me-2"></i>${ag.name || ag.id || 'Unnamed'}</h6>
+                    <h6 class="card-title">
+                        <i class="bi bi-robot me-2"></i>${ag.name || ag.id || 'Unnamed'}
+                        ${isMainAgent ? '<span class="badge bg-primary ms-2">主智能体</span>' : ''}
+                    </h6>
                     <p class="card-text small text-muted mb-2"><i class="bi bi-cpu me-1"></i>${modelDisplay}</p>
                     <p class="card-text small text-truncate-2">${typeof ag.identity === 'object' ? (ag.identity?.text || '-') : (ag.identity || '-')}</p>
                 </div>
                 <div class="card-footer bg-transparent">
                     <div class="btn-group btn-group-sm w-100">
                         <button class="btn btn-outline-primary" onclick="editAgent('${ag.id}')"><i class="bi bi-pencil"></i> ${t('common.edit')}</button>
-                        <button class="btn btn-outline-danger" onclick="deleteAgent('${ag.id}')"><i class="bi bi-trash"></i> ${t('common.delete')}</button>
+                        ${!isMainAgent ? `<button class="btn btn-outline-danger" onclick="deleteAgent('${ag.id}')"><i class="bi bi-trash"></i> ${t('common.delete')}</button>` : ''}
                     </div>
                 </div>
             </div>
@@ -502,6 +520,18 @@ function showAgentModal(agent = null) {
     document.getElementById('agentForm').reset();
     document.getElementById('agentId').value = agent?.id || '';
     document.getElementById('agentName').value = agent?.name || '';
+    
+    // 显示头像 / Show avatar
+    const avatarUrl = agent?.avatarUrl || '';
+    const agentAvatar = document.getElementById('agentAvatar');
+    const agentAvatarUrl = document.getElementById('agentAvatarUrl');
+    
+    if (agentAvatar) {
+        agentAvatar.src = avatarUrl || 'https://via.placeholder.com/100';
+    }
+    if (agentAvatarUrl) {
+        agentAvatarUrl.value = avatarUrl;
+    }
     
     // 判断是新增还是编辑 / Determine if it's add or edit
     const isEdit = agent && agent.id;
@@ -610,19 +640,19 @@ function showAgentModal(agent = null) {
     // 处理 identity 字段，可能是对象或字符串 / Handle identity field, may be object or string
     const identityValue = isEdit 
         ? (typeof agent?.identity === 'object' ? (agent.identity?.text || '') : (agent?.identity || ''))
-        : defaultTemplates.identity;
+        : '';
     const skillsValue = isEdit
         ? (typeof agent?.skills === 'object' ? (agent.skills?.text || '') : (agent?.skills || ''))
-        : defaultTemplates.skills;
+        : '';
     const personalityValue = isEdit
         ? (typeof agent?.personality === 'object' ? (agent.personality?.text || '') : (agent?.personality || ''))
-        : defaultTemplates.personality;
+        : '';
     const toolsValue = isEdit
         ? (typeof agent?.tools === 'object' ? (agent.tools?.text || '') : (agent?.tools || ''))
-        : defaultTemplates.tools;
+        : '';
     const userProfileValue = isEdit
         ? (typeof agent?.userProfile === 'object' ? (agent.userProfile?.text || '') : (agent?.userProfile || ''))
-        : defaultTemplates.userProfile;
+        : '';
     
     document.getElementById('agentIdentity').value = identityValue;
     document.getElementById('agentSkills').value = skillsValue;
@@ -903,7 +933,8 @@ async function saveAgent() {
         skills: document.getElementById('agentSkills').value,
         personality: document.getElementById('agentPersonality').value,
         tools: document.getElementById('agentTools').value,
-        userProfile: document.getElementById('agentUserProfile').value
+        userProfile: document.getElementById('agentUserProfile').value,
+        avatarUrl: document.getElementById('agentAvatarUrl').value
     };
     
     try {
@@ -964,6 +995,45 @@ function showCountdownModal() {
             countdownModal.hide();
         }
     }, 1000);
+}
+
+/**
+ * 处理头像上传
+ * Handle avatar upload
+ */
+async function handleAvatarUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const formData = new FormData();
+    formData.append('avatar', file);
+    
+    try {
+        const response = await fetch('/api/agent-avatar', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            document.getElementById('agentAvatar').src = result.avatar_url;
+            document.getElementById('agentAvatarUrl').value = result.avatar_url;
+        } else {
+            alert(result.error || '上传失败');
+        }
+    } catch (error) {
+        console.error('Avatar upload failed:', error);
+        alert('上传失败');
+    }
+}
+
+/**
+ * 调整文本框高度
+ * Adjust textarea height
+ */
+function adjustTextareaHeight() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 300) + 'px';
 }
 
 /**
