@@ -87,6 +87,12 @@ body {
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);  /* 聚焦阴影 / Focus shadow */
 }
 
+/* 文本域固定高度 / Textarea fixed height */
+textarea.form-control[rows="20"] {
+    min-height: 400px;  /* 确保20行有足够高度 */
+    height: 400px;      /* 固定高度 */
+}
+
 /* 表单占位符 / Form placeholder */
 .form-control::placeholder {
     color: var(--text-secondary);  /* 占位符颜色 / Placeholder color */

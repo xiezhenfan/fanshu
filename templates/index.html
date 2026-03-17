@@ -152,9 +152,14 @@
             <div class="tab-pane fade" id="agent-graph" role="tabpanel">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">智能体关系图</h5>
-                    <button class="btn btn-outline-secondary btn-sm" onclick="refreshAgentGraph()">
-                        <i class="bi bi-arrow-clockwise me-1"></i>刷新
-                    </button>
+                    <div>
+                        <button class="btn btn-outline-secondary btn-sm me-2" onclick="refreshAgentGraph()">
+                            <i class="bi bi-arrow-clockwise me-1"></i>刷新
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="showAgentModal()">
+                            <i class="bi bi-plus-lg me-1"></i>添加智能体
+                        </button>
+                    </div>
                 </div>
                 <div class="card">
                     <div class="card-body">
@@ -178,39 +183,25 @@
 
             <!-- 聊天对话 -->
             <div class="tab-pane fade" id="chat" role="tabpanel">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <span data-i18n="chat.selectAgent">选择智能体</span>
-                            </div>
-                            <div class="list-group list-group-flush" id="chatAgentList">
-                                <div class="list-group-item text-center text-muted" data-i18n="common.loading">加载中...</div>
-                            </div>
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span id="currentAgentName">-</span>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="clearChat()">
+                            <i class="bi bi-trash me-1"></i><span data-i18n="chat.clearChat">清空聊天</span>
+                        </button>
+                    </div>
+                    <div class="card-body chat-messages" id="chatMessages">
+                        <div class="text-center text-muted py-5">
+                            <i class="bi bi-chat-dots display-4"></i>
+                            <p class="mt-2">加载中...</p>
                         </div>
                     </div>
-                    <div class="col-md-9">
-                        <div class="card h-100">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <span id="currentAgentName">-</span>
-                                <button class="btn btn-sm btn-outline-secondary" onclick="clearChat()">
-                                    <i class="bi bi-trash me-1"></i><span data-i18n="chat.clearChat">清空聊天</span>
-                                </button>
-                            </div>
-                            <div class="card-body chat-messages" id="chatMessages">
-                                <div class="text-center text-muted py-5">
-                                    <i class="bi bi-chat-dots display-4"></i>
-                                    <p class="mt-2" data-i18n="chat.noAgent">请先选择智能体</p>
-                                </div>
-                            </div>
-                            <div class="card-footer">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="chatInput" data-i18n-placeholder="chat.inputPlaceholder" placeholder="输入消息...">
-                                    <button class="btn btn-primary" onclick="sendMessage()">
-                                        <i class="bi bi-send me-1"></i><span data-i18n="chat.send">发送</span>
-                                    </button>
-                                </div>
-                            </div>
+                    <div class="card-footer">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="chatInput" data-i18n-placeholder="chat.inputPlaceholder" placeholder="输入消息...">
+                            <button class="btn btn-primary" onclick="sendMessage()">
+                                <i class="bi bi-send me-1"></i><span data-i18n="chat.send">发送</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -504,23 +495,21 @@
                 <div class="modal-body">
                     <form id="agentForm">
                         <input type="hidden" id="agentId">
-                        <div class="mb-3 text-center">
-                            <label class="form-label d-block mb-2">智能体头像</label>
-                            <div class="d-inline-block">
-                                <div class="position-relative">
-                                    <img id="agentAvatar" src="" alt="智能体头像" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #dee2e6;">
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="position-relative me-3">
+                                    <img id="agentAvatar" src="" alt="智能体头像" class="rounded-circle" style="width: 48px; height: 48px; object-fit: cover; border: 2px solid #dee2e6;">
                                     <input type="file" id="agentAvatarInput" accept=".png,.jpg,.jpeg,.gif,.webp" style="display: none;">
-                                    <button type="button" class="btn btn-outline-primary position-absolute bottom-0 right-0" onclick="document.getElementById('agentAvatarInput').click()">
-                                        <i class="bi bi-camera"></i>
+                                    <button type="button" class="btn btn-sm btn-primary position-absolute bottom-0 end-0" style="width: 20px; height: 20px; padding: 0; border-radius: 50%; line-height: 20px;" onclick="document.getElementById('agentAvatarInput').click()">
+                                        <i class="bi bi-camera" style="font-size: 12px;"></i>
                                     </button>
                                 </div>
-                                <p class="text-muted small mt-2">点击上传头像</p>
+                                <div class="flex-grow-1">
+                                    <label class="form-label mb-1" data-i18n="agent.agentName">智能体名称</label>
+                                    <input type="text" class="form-control" id="agentName" required>
+                                </div>
                                 <input type="hidden" id="agentAvatarUrl">
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label" data-i18n="agent.agentName">智能体名称</label>
-                            <input type="text" class="form-control" id="agentName" required>
                         </div>
                         <div class="mb-3" id="templateSelectContainer">
                             <label class="form-label">选择模板（可选）</label>

@@ -441,6 +441,11 @@ async function loadAgents() {
         agents = await response.json();
         renderAgentList();
         renderChatAgentList();
+        
+        const mainAgent = agents.find(a => a.id === 'main');
+        if (mainAgent) {
+            selectAgent(mainAgent.id);
+        }
     } catch (error) {
         console.error('Failed to load agents:', error);
     }
@@ -1689,8 +1694,6 @@ async function handleImport(event) {
 function selectAgent(id) {
     currentAgent = agents.find(a => a.id === id);
     document.getElementById('currentAgentName').textContent = currentAgent?.name || currentAgent?.id || '-';
-    document.querySelectorAll('#chatAgentList .list-group-item').forEach(el => el.classList.remove('active'));
-    event?.target?.classList.add('active');
     
     // 重置聊天历史 / Reset chat history
     chatHistory[currentAgent.id] = [];
